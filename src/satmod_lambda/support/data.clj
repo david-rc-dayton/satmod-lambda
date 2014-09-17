@@ -48,6 +48,16 @@
   [construct-key name]
   (swap! settings assoc-in [construct-key (gen-id)] {:name name}))
 
+(defn remove-construct!
+  "Remove construct from settings map."
+  [construct-key id]
+  (swap! settings update-in [construct-key] dissoc id))
+
+(defn update-construct!
+  "Update data for construct in settings map."
+  [construct-key id data-key new-value]
+  (swap! settings assoc-in [construct-key id data-key] new-value))
+
 (defn get-construct
   "Get construct from settings map."
   [construct-key id]

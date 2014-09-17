@@ -7,5 +7,5 @@
 
 (defn gen-satellite-object
   "Create new satellite object for List display."
-  [name]
-  (->SMLSatellite name (data/gen-id)))
+  [name id]
+  (->SMLSatellite name id))

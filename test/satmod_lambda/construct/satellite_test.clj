@@ -5,6 +5,8 @@
 (deftest constructor-test
   (testing "satellite object creation"
            (let [sat-name "Test Satellite"
-                 sml-sat (gen-satellite-object sat-name)]
+                 sat-id "12345"
+                 sml-sat (gen-satellite-object sat-name sat-id)]
              (is (= sat-name (.toString sml-sat)))
-             (is (= sat-name (:name sml-sat))))))
+             (is (= sat-name (:name sml-sat)))
+             (is (= sat-id (:id sml-sat))))))

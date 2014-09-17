@@ -7,5 +7,5 @@
 
 (defn gen-earth-station-object
   "Create new earth-station object for List display."
-  [name]
-  (->SMLEarthStation name (data/gen-id)))
+  [name id]
+  (->SMLEarthStation name id))

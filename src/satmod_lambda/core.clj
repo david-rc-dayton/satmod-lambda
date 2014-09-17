@@ -52,5 +52,6 @@
                      :icon data/icon
                      :on-close :exit
                      :size [800 :by 600])
-        center! maximize! s/show!))
-    (do (Thread/sleep 3000) (.dispose splash))))
+        center! maximize! s/show!)
+      (future (do (Thread/sleep 3000)) 
+        (.dispose splash)))))

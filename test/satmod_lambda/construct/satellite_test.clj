@@ -7,5 +7,4 @@
            (let [sat-name "Test Satellite"
                  sml-sat (gen-satellite-object sat-name)]
              (is (= sat-name (.toString sml-sat)))
-             (is (= sat-name (:name sml-sat)))
-             (is (= 32 (count (:id sml-sat)))))))
+             (is (= sat-name (:name sml-sat))))))

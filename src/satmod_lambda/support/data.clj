@@ -42,3 +42,13 @@
       (spit file (with-out-str (pr @settings))))
     (reset! settings (read-string (slurp file)))
     (watch-settings)))
+
+(defn add-construct!
+  "Add new construct to settings map."
+  [construct-key name]
+  (swap! settings assoc-in [construct-key (gen-id)] {:name name}))
+
+(defn get-construct
+  "Get construct from settings map."
+  [construct-key id]
+  (get-in @settings [construct-key id]))

@@ -8,6 +8,8 @@
            [javax.swing ImageIcon])
   (:gen-class))
 
+(def display-name (str data/title " " (data/version)))
+
 (defn center!
   "Center frame on screen."
   [frame]
@@ -17,8 +19,6 @@
   "Maximize frame."
   [frame]
   (.setExtendedState frame 6))
-
-(def display-name (str data/title " " (data/version)))
 
 (defn splash-screen 
   "Build splash-screen window."

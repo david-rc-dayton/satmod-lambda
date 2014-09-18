@@ -2,7 +2,7 @@
 
 Satellite constellation analysis software.
 
-## Usage
+## Overview
 
 *Currently a work-in-progress.* The purpose of this software is to efficiently
 model satellite coverage, and possibly other useful constellation management

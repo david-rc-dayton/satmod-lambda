@@ -31,6 +31,11 @@
         random-gen (Random.)]
     (.toString (BigInteger. bits random-gen) 16)))
 
+(defn reset-settings!
+  "Remove values from settings atom."
+  []
+  (reset! settings {}))
+
 (defn watch-settings
   "Update settings file to reflect changes in software settings."
   []

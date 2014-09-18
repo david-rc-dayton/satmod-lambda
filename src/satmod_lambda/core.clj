@@ -30,7 +30,8 @@
   []
   (let [coverage-button (s/button :text "Coverage")
         edit-button (s/button :text "Edit")
-        button-panel (s/horizontal-panel :items [coverage-button edit-button])
+        button-panel (s/horizontal-panel :items [coverage-button edit-button]
+                                         :border data/border-size)
         card-panel (s/card-panel :items [[(cov/coverage-panel) :cov-panel]
                                          [(edit/edit-panel) :edit-panel]])]
     ;; add change-card listeners to buttons

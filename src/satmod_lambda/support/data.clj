@@ -15,7 +15,14 @@
 
 (def settings-file (str settings-dir "/settings.edn"))
 
-(def settings (atom {:satellite {} :earth-station {}}))
+(def categories
+  "Available categories and their keyword maps."
+  {"Satellite"     :satellite
+   "Earth Station" :earth-station})
+
+(def settings (atom {}))
+
+(def border-size 5)
 
 (defn gen-id
   "Generate (hopefully) unique hexadecimal identifier."

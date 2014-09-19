@@ -12,8 +12,8 @@
   "Generate dialog to add construct."
   [listbox combobox & _]
   (let [name-field (s/text)
-        construct-str (->> (.toLowerCase (.getSelectedItem combobox))
-                        (str "Enter new " " name:"))
+        construct-str (str "Enter new " (.toLowerCase 
+                                          (.getSelectedItem combobox)) " name:")
         success-fn (fn [& _] 
                      (let [t (.trim (s/text name-field))
                            category (get data/categories 

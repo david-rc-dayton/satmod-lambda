@@ -3,17 +3,61 @@
             [satmod-lambda.support.object :as obj]
             [seesaw.core :as s]))
 
+(defn default-panel
+  "Generate default (blank) panel for update screen."
+  []
+  (s/grid-panel :items [(s/text :editable? false)]))
+
+(defn entry-field
+  "Generate default entry field with given text."
+  [text editable?]
+  (s/text :text text :halign :right :editable? editable?))
+
 (defn category-fn
   "Update listbox based on combobox selection."
   [listbox combobox & _]
   (s/config! listbox :model (obj/gen-list (.getSelectedItem combobox))))
 
+(defn earth-station-panel
+  "Generate panel for earth station update."
+  [es-id]
+  (let [es-map (get-in @data/settings [:earth-station es-id])
+        name-field (entry-field (:name es-map) true)
+        id-field (entry-field es-id false)
+        lat-field (entry-field (:latitude es-id) true)
+        lon-field (entry-field (:longitude es-id) true)
+        alt-field (entry-field (:altitude es-id) true)
+        update-button (s/button :text "Update")
+        es-panel (s/grid-panel :rows data/grid-rows
+                               :border data/border-size
+                               :items ["[Name]" name-field
+                                       "[Identifier]" id-field
+                                       "[Latitude (deg)]" lat-field
+                                       "[Longitude (deg)]" lon-field
+                                       "[Altitude (m)]" alt-field
+                                       (s/flow-panel :items [update-button]
+                                                     :align :left)])]
+    es-panel))
+
+(defn select-fn
+  "Generate update panel for selected construct."
+  [listbox update-panel & _]
+  (let [selected-item (.getSelectedValue listbox)
+        selected-type (:type selected-item)
+        selected-id (:id selected-item)]
+    (.invalidate update-panel)
+    (s/config! update-panel 
+               :items [(condp = selected-type
+                         :earth-station (earth-station-panel selected-id)
+                         (default-panel))])
+    (.revalidate update-panel)))
+
 (defn add-fn
   "Generate dialog to add construct."
   [listbox combobox & _]
   (let [name-field (s/text)
-        construct-str (str "Enter new " (.toLowerCase 
-                                          (.getSelectedItem combobox)) " name:")
+        construct-str (str "Enter new " 
+                           (.toLowerCase (.getSelectedItem combobox)) " name:")
         success-fn (fn [& _] 
                      (let [t (.trim (s/text name-field))
                            category (get data/categories 
@@ -24,7 +68,7 @@
                                (category-fn listbox combobox)))]
     (-> (s/dialog :content (s/grid-panel :items [construct-str name-field])
                   :option-type :ok-cancel :success-fn (partial success-fn))
-      s/pack! s/show!)))
+     s/pack! (doto (.setLocationRelativeTo (.getRootPane combobox))) s/show!)))
 
 (defn remove-fn
   "Generate dialog to remove construct"
@@ -39,11 +83,12 @@
     (when-not (nil? selected-name)
       (-> (s/dialog :content (s/grid-panel :items [rm-str])
                     :option-type :yes-no :success-fn (partial success-fn))
-        s/pack! s/show!))))
+        s/pack! (doto (.setLocationRelativeTo (.getRootPane combobox)))
+        s/show!))))
 
 (defn select-panel
   "Generate selection panel."
-  []
+  [edit-panel]
   (let [selection-box (s/listbox)
         category-box (s/combobox :model (sort (keys data/categories)))
         add-button (s/button :text "Add")
@@ -51,6 +96,8 @@
         button-panel (s/grid-panel :rows 1 :items [add-button remove-button])]
     (s/listen category-box :selection (partial category-fn 
                                                selection-box category-box))
+    (s/listen selection-box :selection (partial select-fn
+                                                selection-box edit-panel))
     (s/listen add-button :action (partial add-fn
                                           selection-box category-box))
     (s/listen remove-button :action (partial remove-fn
@@ -62,5 +109,6 @@
 (defn edit-panel
   "Generate editing panel."
   []
-  (let [left-panel (select-panel)]
-    (s/border-panel :west left-panel :center "edit-panel")))
+  (let [center-panel (default-panel)
+        left-panel (select-panel center-panel)]
+    (s/border-panel :west left-panel :center center-panel)))

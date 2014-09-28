@@ -23,11 +23,12 @@
 (def settings (atom {}))
 
 (def border-size 5)
+(def grid-rows 20)
 
 (defn gen-id
   "Generate (hopefully) unique hexadecimal identifier."
   []
-  (let [bits 128
+  (let [bits 256
         random-gen (Random.)]
     (.toString (BigInteger. bits random-gen) 16)))
 

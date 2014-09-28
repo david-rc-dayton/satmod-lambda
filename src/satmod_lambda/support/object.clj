@@ -15,4 +15,4 @@
   [category]
   (let [type (get data/categories category)
         obj-fn (fn [v] (gen-object type (:name (val v)) (key v)))]
-    (map obj-fn (get @data/settings type))))
+    (map obj-fn (sort-by #(:name (val %)) (get @data/settings type)))))

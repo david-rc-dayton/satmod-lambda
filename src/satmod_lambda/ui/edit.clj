@@ -11,7 +11,7 @@
 (defn entry-field
   "Generate default entry field with given text."
   [text editable?]
-  (s/text :text text :halign :right :editable? editable?))
+  (s/text :text text :halign :leading :editable? editable?))
 
 (defn category-fn
   "Update listbox based on combobox selection."
@@ -20,35 +20,62 @@
 
 (defn earth-station-panel
   "Generate panel for earth station update."
-  [es-id]
+  [listbox combobox es-id]
   (let [es-map (get-in @data/settings [:earth-station es-id])
         name-field (entry-field (:name es-map) true)
         id-field (entry-field es-id false)
-        lat-field (entry-field (:latitude es-id) true)
-        lon-field (entry-field (:longitude es-id) true)
-        alt-field (entry-field (:altitude es-id) true)
+        lat-field (entry-field (:latitude es-map) true)
+        lon-field (entry-field (:longitude es-map) true)
+        alt-field (entry-field (:altitude es-map) true)
+        enable-toggle (s/toggle :text "Enable" :selected? (:enabled? es-map))
         update-button (s/button :text "Update")
-        es-panel (s/grid-panel :rows data/grid-rows
-                               :border data/border-size
-                               :items ["[Name]" name-field
-                                       "[Identifier]" id-field
-                                       "[Latitude (deg)]" lat-field
-                                       "[Longitude (deg)]" lon-field
-                                       "[Altitude (m)]" alt-field
-                                       (s/flow-panel :items [update-button]
-                                                     :align :left)])]
-    es-panel))
+        update-fn (fn [& _] 
+                    (let [n (.trim (s/text name-field))
+                          lat (try (Double/parseDouble (s/text lat-field))
+                                (catch Exception e nil))
+                          lon (try (Double/parseDouble (s/text lon-field))
+                                (catch Exception e nil))
+                          alt (try (Double/parseDouble (s/text alt-field))
+                                (catch Exception e nil))]
+                      (when-not (.isEmpty n)
+                        (data/update-construct! :earth-station es-id
+                                                :name n))
+                      (when-not (nil? lat)
+                        (data/update-construct! :earth-station es-id
+                                                :latitude lat))
+                      (when-not (nil? lon)
+                        (data/update-construct! :earth-station es-id
+                                                :longitude lon))
+                      (when-not (nil? alt)
+                        (data/update-construct! :earth-station es-id
+                                                :altitude alt))
+                      (data/update-construct! 
+                        :earth-station es-id
+                        :enabled? (s/config enable-toggle :selected?)))
+                    (category-fn listbox combobox))]
+    (s/listen update-button :action update-fn)
+    (s/grid-panel :rows data/grid-rows
+                  :border data/border-size
+                  :items ["Name:" name-field
+                          "Identifier:" id-field
+                          "Latitude (deg):" lat-field
+                          "Longitude (deg):" lon-field
+                          "Altitude (m):" alt-field
+                          (s/flow-panel 
+                            :items [enable-toggle update-button] 
+                            :align :left)])))
 
 (defn select-fn
   "Generate update panel for selected construct."
-  [listbox update-panel & _]
+  [listbox combobox update-panel & _]
   (let [selected-item (.getSelectedValue listbox)
         selected-type (:type selected-item)
         selected-id (:id selected-item)]
     (.invalidate update-panel)
     (s/config! update-panel 
                :items [(condp = selected-type
-                         :earth-station (earth-station-panel selected-id)
+                         :earth-station (earth-station-panel 
+                                          listbox combobox selected-id)
                          (default-panel))])
     (.revalidate update-panel)))
 
@@ -97,7 +124,8 @@
     (s/listen category-box :selection (partial category-fn 
                                                selection-box category-box))
     (s/listen selection-box :selection (partial select-fn
-                                                selection-box edit-panel))
+                                                selection-box category-box
+                                                edit-panel))
     (s/listen add-button :action (partial add-fn
                                           selection-box category-box))
     (s/listen remove-button :action (partial remove-fn

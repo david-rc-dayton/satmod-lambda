@@ -10,6 +10,8 @@
 
 (def display-name (str data/title " " (data/version)))
 
+(def window-size [800 :by 600])
+
 (defn center!
   "Center frame on screen."
   [frame]
@@ -35,16 +37,17 @@
         card-panel (s/card-panel :items [[(cov/coverage-panel) :cov-panel]
                                          [(edit/edit-panel) :edit-panel]])]
     ;; add change-card listeners to buttons
-    (s/listen coverage-button :action (fn [_] (s/show-card!
-                                                card-panel :cov-panel)))
-    (s/listen edit-button :action (fn [_] (s/show-card! 
-                                            card-panel :edit-panel)))
+    (s/listen coverage-button 
+              :action (fn [_] (s/show-card! card-panel :cov-panel)))
+    (s/listen edit-button 
+              :action (fn [_] (s/show-card! card-panel :edit-panel)))
     (s/border-panel :north button-panel :center card-panel)))
 
 (defn -main
   [& args]
   (let [splash (splash-screen)]
-    (future (doto splash (.setAlwaysOnTop true) s/pack! center! s/show!))
+    (future (doto splash (.setAlwaysOnTop true)           ; display splash image
+              s/pack! center! s/show!))
     (SubstanceLookAndFeel/setSkin (GraphiteSkin.))
     (data/load-settings!)
     (s/invoke-later
@@ -52,7 +55,7 @@
                      :content (main-panel)
                      :icon data/icon
                      :on-close :exit
-                     :size [800 :by 600])
+                     :size window-size
+                     :minimum-size window-size)
         center! maximize! s/show!)
-      (future (do (Thread/sleep 3000)) 
-        (.dispose splash)))))
+      (future (do (Thread/sleep 2000) (.dispose splash))))))

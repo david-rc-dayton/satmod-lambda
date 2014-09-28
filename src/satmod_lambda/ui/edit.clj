@@ -1,7 +1,9 @@
 (ns satmod-lambda.ui.edit
   (:require [satmod-lambda.support.data :as data]
             [satmod-lambda.support.object :as obj]
-            [seesaw.core :as s]))
+            [seesaw.core :as s]
+            [seesaw.chooser :as choose])
+  (:import [java.awt Color]))
 
 (defn default-panel
   "Generate default (blank) panel for update screen."
@@ -12,6 +14,20 @@
   "Generate default entry field with given text."
   [text editable?]
   (s/text :text text :halign :leading :editable? editable?))
+
+(defn color-button
+  "Create color picker for construct update."
+  [component type id & _]
+  (let [construct (data/get-construct type id)
+        c-color (or (:color construct) data/default-color)
+        c-button (s/button)
+        c-fn (fn [& _]
+               (.setBackground c-button
+                 (choose/choose-color (.getRootPane component)
+                                      :color (.getBackground c-button))))]
+    (s/listen c-button :action c-fn)
+    (doto c-button 
+      (.setBackground (Color. (:r c-color) (:g c-color) (:b c-color))))))
 
 (defn category-fn
   "Update listbox based on combobox selection."
@@ -24,6 +40,7 @@
   (let [es-map (get-in @data/settings [:earth-station es-id])
         name-field (entry-field (:name es-map) true)
         id-field (entry-field es-id false)
+        c-button (color-button name-field :earth-station es-id)
         lat-field (entry-field (:latitude es-map) true)
         lon-field (entry-field (:longitude es-map) true)
         alt-field (entry-field (:altitude es-map) true)
@@ -31,6 +48,10 @@
         update-button (s/button :text "Update")
         update-fn (fn [& _] 
                     (let [n (.trim (s/text name-field))
+                          bg (.getBackground c-button)
+                          col {:r (.getRed bg) 
+                               :g (.getGreen bg) 
+                               :b (.getBlue bg)}
                           lat (try (Double/parseDouble (s/text lat-field))
                                 (catch Exception e nil))
                           lon (try (Double/parseDouble (s/text lon-field))
@@ -40,6 +61,8 @@
                       (when-not (.isEmpty n)
                         (data/update-construct! :earth-station es-id
                                                 :name n))
+                      (data/update-construct! :earth-station es-id
+                                              :color col)
                       (when-not (nil? lat)
                         (data/update-construct! :earth-station es-id
                                                 :latitude lat))
@@ -58,6 +81,7 @@
                   :border data/border-size
                   :items ["Name:" name-field
                           "Identifier:" id-field
+                          "Color:" c-button
                           "Latitude (deg):" lat-field
                           "Longitude (deg):" lon-field
                           "Altitude (m):" alt-field

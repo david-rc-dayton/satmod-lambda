@@ -15,6 +15,8 @@
 
 (def settings-file (str settings-dir "/settings.edn"))
 
+(def default-color {:r 0 :g 255 :b 0})
+
 (def categories
   "Available categories and their keyword maps."
   {"Satellite"     :satellite

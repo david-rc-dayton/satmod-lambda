@@ -2,15 +2,29 @@
   (:require [satmod-lambda.support.data :as data]
             [satmod-lambda.ui.coverage :as cov]
             [satmod-lambda.ui.edit :as edit]
-            [seesaw.core :as s])
+            [seesaw.core :as s]
+            [clojure.java.io :as io])
   (:import [org.pushingpixels.substance.api SubstanceLookAndFeel]
            [org.pushingpixels.substance.api.skin GraphiteSkin]
            [javax.swing ImageIcon])
   (:gen-class))
 
-(def display-name (str data/title " " (data/version)))
+(def title "SatMod-\u03BB")
+
+(defmacro version []
+  (System/getProperty "satmod-lambda.version"))
+
+(def display-name (str title " " (version)))
+
+(def icon "icon.png")
+
+(def splash-image (io/resource "splash.png"))
 
 (def window-size [800 :by 600])
+
+(def root 
+  "Main program panel."
+  (atom nil))
 
 (defn center!
   "Center frame on screen."
@@ -22,38 +36,41 @@
   [frame]
   (.setExtendedState frame 6))
 
-(defn splash-screen 
-  "Build splash-screen window."
+(defn splash-screen
+  "Splash-screen window."
   []
-  (s/window :content data/splash-image))
+  (doto (s/window :content splash-image) 
+    s/pack! center! s/show!))
 
 (defn main-panel
   "Generate program's main panel."
   []
-  (let [coverage-button (s/button :text "Coverage")
-        edit-button (s/button :text "Edit")
-        button-panel (s/horizontal-panel :items [coverage-button edit-button]
-                                         :border data/border-size)
-        card-panel (s/card-panel :items [[(cov/coverage-panel) :cov-panel]
-                                         [(edit/edit-panel) :edit-panel]])]
+  (let [coverage-button (s/button :text "Coverage" :id :coverage-button)
+        edit-button (s/button :text "Edit" :id :edit-button)
+        display-panel (s/card-panel :items [[(cov/coverage-panel) :cov-panel]
+                                            [(edit/edit-panel) :edit-panel]]
+                                    :border data/border-size)]
     ;; add change-card listeners to buttons
     (s/listen coverage-button 
-              :action (fn [_] (s/show-card! card-panel :cov-panel)))
+              :action (fn [_] (s/show-card! display-panel :cov-panel)))
     (s/listen edit-button 
-              :action (fn [_] (s/show-card! card-panel :edit-panel)))
-    (s/border-panel :north button-panel :center card-panel)))
+              :action (fn [_] (s/show-card! display-panel :edit-panel)))
+    (reset! root (s/border-panel 
+                   :north (s/horizontal-panel :items [coverage-button 
+                                                      edit-button]
+                                              :border data/border-size) 
+                   :center display-panel))))
 
 (defn -main
+  "Program entry point."
   [& args]
   (let [splash (splash-screen)]
-    (future (doto splash (.setAlwaysOnTop true)           ; display splash image
-              s/pack! center! s/show!))
     (SubstanceLookAndFeel/setSkin (GraphiteSkin.))
     (data/load-settings!)
     (s/invoke-later
       (doto (s/frame :title display-name
                      :content (main-panel)
-                     :icon data/icon
+                     :icon icon
                      :on-close :exit
                      :size window-size
                      :minimum-size window-size)

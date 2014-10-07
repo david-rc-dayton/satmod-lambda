@@ -2,15 +2,6 @@
   (:require [clojure.java.io :as io])
   (:import [java.util Random]))
 
-(def title "SatMod-\u03BB")
-
-(defmacro version []
-  (System/getProperty "satmod-lambda.version"))
-
-(def icon "icon.png")
-
-(def splash-image (io/resource "splash.png"))
-
 (def settings-dir (str (System/getProperty "user.home") "/.satmod-lambda"))
 
 (def settings-file (str settings-dir "/settings.edn"))
@@ -18,14 +9,13 @@
 (def default-color {:r 0 :g 255 :b 0})
 
 (def categories
-  "Available categories and their keyword maps."
+  "Available construct categories and their keyword maps."
   {"Satellite"     :satellite
    "Earth Station" :earth-station})
 
 (def settings (atom {}))
 
 (def border-size 5)
-(def grid-rows 20)
 
 (defn gen-id
   "Generate (hopefully) unique hexadecimal identifier."

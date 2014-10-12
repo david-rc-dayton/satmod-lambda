@@ -40,7 +40,7 @@
   "Splash-screen window."
   []
   (doto (s/window :content splash-image) 
-    s/pack! center! s/show!))
+    s/pack! center! s/show! (.setAlwaysOnTop true)))
 
 (defn main-panel
   "Generate program's main panel."
@@ -75,4 +75,4 @@
                      :size window-size
                      :minimum-size window-size)
         center! maximize! s/show!)
-      (future (do (Thread/sleep 2000) (.dispose splash))))))
+      (future (do (Thread/sleep 3000) (.dispose splash))))))

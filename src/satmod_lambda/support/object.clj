@@ -13,6 +13,5 @@
 (defn gen-list
   "Generate list of items for list object model."
   [category]
-  (let [type (get data/categories category)
-        obj-fn (fn [v] (gen-object type (:name (val v)) (key v)))]
-    (map obj-fn (sort-by #(:name (val %)) (get @data/settings type)))))
+  (let [obj-fn (fn [v] (gen-object category (:name (val v)) (key v)))]
+    (map obj-fn (sort-by #(:name (val %)) (get @data/settings category)))))

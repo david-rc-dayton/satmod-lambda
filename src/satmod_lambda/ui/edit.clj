@@ -12,44 +12,61 @@
   (atom nil))
 
 (defn update-panel
-  "Placeholder for construct update panes."
+  "Placeholder for construct update panel."
   []
   (s/grid-panel :id :update-panel
                 :rows grid-rows))
 
-(defn poll-category
+(defn poll-category-box
+  "Get the current category selection box."
+  []
+  (s/select @root [:#category-box]))
+
+(defn poll-category-key
   "Get the currently selected category keyword."
   []
-  (let [c-box (s/select @root [:#category-box])]
-    (get data/categories (s/selection c-box))))
+  (get data/categories (s/selection (poll-category-box))))
 
-(defn poll-selection
+(defn poll-category-text
+  "Get the currenly selected category text."
+  []
+  (.toLowerCase (s/selection (poll-category-box))))
+
+(defn poll-selection-box
+  "Get the current category selection box."
+  []
+  (s/select @root [:#selection-box]))
+
+(defn poll-selection-key
   "Get currently selected construct id."
   []
-  (let [s-box (s/select @root [:#selection-box])
-        s-item (.getSelectedValue s-box)]
+  (let [s-item (.getSelectedValue (poll-selection-box))]
     (:id s-item)))
+
+(defn poll-selection-text
+  "Get currently selected construct name"
+  []
+  (let [s-item (.getSelectedValue (poll-selection-box))]
+    (:name s-item)))
 
 (defn category-fn
   "Update construct menu to reflect selected category."
   [& _]
-  (let [s-box (s/select @root [:#selection-box])
-        model (obj/gen-list (poll-category))]
-    (s/config! s-box :model model)))
+  (let [model (obj/gen-list (poll-category-key))]
+    (s/config! (poll-selection-box) :model model)))
 
 (defn add-fn
   "Add construct to settings file."
   [& _]
-  (let [cat-text (.toLowerCase (s/selection (s/select @root [:#category-box])))
-        cat-key (poll-category)
-        title-str (str "Enter name of new " cat-text " construct:")
+  (let [msg-str (str "Enter name of new " (poll-category-text) " construct:")
         name-field (s/text)
         success-fn (fn [& _] (let [new-name (.trim (s/text name-field))]
                                (if-not (.isEmpty new-name)
-                                 (data/add-construct! cat-key new-name)
+                                 (data/add-construct! (poll-category-key) 
+                                                      new-name)
                                  (s/alert "Name cannot be blank."))))]
     (doto (s/dialog :option-type :ok-cancel
-                    :content (s/grid-panel :items [title-str name-field] 
+                    :content (s/grid-panel :items [msg-str name-field] 
                                            :columns 1)
                     :success-fn (partial success-fn))
       s/pack! (.setLocationRelativeTo @root) s/show!)
@@ -58,7 +75,15 @@
 (defn remove-fn
   "Remove construct from settings file."
   [& _]
-  (println (poll-selection)))
+  (let [msg-key (str "Do you want to remove " (poll-category-text)
+                     " " (poll-selection-text) "?")
+        success-fn (fn [& _] (data/remove-construct! (poll-category-key)
+                                                     (poll-selection-key))
+                     (category-fn))]
+    (when-not (nil? (poll-selection-text))
+      (doto (s/dialog :option-type :yes-no :content msg-key
+                      :success-fn (partial success-fn))
+        s/pack! (.setLocationRelativeTo @root) s/show!))))
 
 (defn select-panel
   "Panel for selecting contructs."

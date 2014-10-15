@@ -19,6 +19,6 @@
            (data/add-construct! :satellite "test-1")
            (data/add-construct! :satellite "test-2")
            (data/add-construct! :satellite "test-3")
-           (let [construct-list (gen-list "Satellite")]
+           (let [construct-list (gen-list :satellite)]
              (is (= (list "test-1" "test-2" "test-3")
                     (sort (map #(.toString %) construct-list)))))))

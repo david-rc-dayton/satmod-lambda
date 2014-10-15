@@ -85,6 +85,10 @@
                       :success-fn (partial success-fn))
         s/pack! (.setLocationRelativeTo @root) s/show!))))
 
+(defn update-construct
+  "Generate update panel for selected construct."
+  [& _])
+
 (defn select-panel
   "Panel for selecting contructs."
   []

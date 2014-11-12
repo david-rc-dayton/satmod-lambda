@@ -1,6 +1,8 @@
 (ns satmod-lambda.ui.edit
   (:require [satmod-lambda.support.data :as data]
             [satmod-lambda.support.object :as obj]
+            [satmod-lambda.construct.satellite :as sat]
+            [satmod-lambda.construct.earth-station :as es]
             [seesaw.core :as s]
             [seesaw.chooser :as choose])
   (:import [java.awt Color]))
@@ -85,9 +87,14 @@
                       :success-fn (partial success-fn))
         s/pack! (.setLocationRelativeTo @root) s/show!))))
 
-(defn update-construct
+(defn generate-update-panel
   "Generate update panel for selected construct."
-  [& _])
+  [& _]
+  (let [construct-category (poll-category-key)
+        construct-key (poll-selection-key)
+        update-panel (s/select @root [:#update-panel])]
+    (s/config!) (condp = construct-category
+      :satellite (sat/generate-update-panel construct-key))))
 
 (defn select-panel
   "Panel for selecting contructs."
@@ -102,6 +109,7 @@
     (s/listen category-box :action (partial category-fn))
     (s/listen add-button :action (partial add-fn))
     (s/listen rm-button :action (partial remove-fn))
+    (s/listen selection-box :selection (partial generate-update-panel))
     (s/border-panel :north category-box 
                     :center (s/scrollable selection-box)
                     :south (s/grid-panel :items [add-button rm-button]

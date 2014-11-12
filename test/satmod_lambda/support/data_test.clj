@@ -4,20 +4,28 @@
 
 (deftest gen-id-test
   (testing "unique id values"
-           (is (apply distinct? (take 1000000 (repeatedly gen-id))))))
+           (is (apply distinct? (take 100000 (repeatedly gen-id))))))
 
 (deftest construct-test
-  (testing "add/update/retrieve/remove setting constructs"
-           (add-construct! :satellite "test-sat")
-           (add-construct! :earth-station "test-es")
-           (let [sat-key (key (first (:satellite @settings)))
-                 es-key (key (first (:earth-station @settings)))]
-             (is (= "test-sat" (:name (get-construct :satellite sat-key))))
-             (is (= "test-es" (:name (get-construct :earth-station es-key))))
-             (update-construct! :satellite sat-key :name "sat-test")
-             (update-construct! :earth-station es-key :name "es-test")
-             (is (= "sat-test" (:name (get-construct :satellite sat-key))))
-             (is (= "es-test" (:name (get-construct :earth-station es-key))))
-             (remove-construct! :satellite sat-key)
-             (remove-construct! :earth-station es-key)
-             (is (= {:satellite {} :earth-station {}} @settings)))))
+  (add-construct! :satellite "satellite")
+  (add-construct! :earth-station "earth-station")
+  (let [satellite-key (key (first (:satellite @settings)))
+        earth-station-key (key (first (:earth-station @settings)))]
+    (testing "add settings construct"
+             (is (= (:name (get-construct :satellite satellite-key))
+                    "satellite"))
+             (is (= (:name (get-construct :earth-station earth-station-key))
+                    "earth-station")))
+    (update-construct! :satellite satellite-key 
+                       :name "satellite-update")
+    (update-construct! :earth-station earth-station-key 
+                       :name "earth-station-update")
+    (testing "update settings construct"
+             (is (= (:name (get-construct :satellite satellite-key))
+                    "satellite-update"))
+             (is (= (:name (get-construct :earth-station earth-station-key))
+                    "earth-station-update")))
+    (remove-construct! :satellite satellite-key)
+    (remove-construct! :earth-station earth-station-key)
+    (testing "remove settings construct"
+             (is (= @settings {:satellite {} :earth-station {}})))))

@@ -74,5 +74,5 @@
                      :on-close :exit
                      :size window-size
                      :minimum-size window-size)
-        center! maximize! s/show!)
-      (future (do (Thread/sleep 3000) (.dispose splash))))))
+        center! s/show!)
+      (future (do (Thread/sleep 2000) (.dispose splash))))))

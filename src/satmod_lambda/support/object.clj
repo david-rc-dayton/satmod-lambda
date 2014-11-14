@@ -14,4 +14,5 @@
   "Generate list of items for list object model."
   [category]
   (let [obj-fn (fn [v] (gen-object category (:name (val v)) (key v)))]
-    (map obj-fn (sort-by #(:name (val %)) (get @data/settings category)))))
+    (map obj-fn (sort-by #(clojure.string/lower-case (:name (val %))) 
+                         (get @data/settings category)))))

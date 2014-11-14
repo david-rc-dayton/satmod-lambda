@@ -1,9 +1,8 @@
 (ns satmod-lambda.ui.edit
   (:require [satmod-lambda.support.data :as data]
             [satmod-lambda.support.object :as obj]
-            [satmod-lambda.construct.satellite :as sat]
-            [satmod-lambda.construct.earth-station :as es]
             [seesaw.core :as s]
+            [seesaw.mig :as sm]
             [seesaw.chooser :as choose])
   (:import [java.awt Color]))
 
@@ -16,8 +15,7 @@
 (defn update-panel
   "Placeholder for construct update panel."
   []
-  (s/grid-panel :id :update-panel
-                :rows grid-rows))
+  (s/vertical-panel :id :update-panel))
 
 (defn poll-category-box
   "Get the current category selection box."
@@ -68,8 +66,7 @@
                                                       new-name)
                                  (s/alert "Name cannot be blank."))))]
     (doto (s/dialog :option-type :ok-cancel
-                    :content (s/grid-panel :items [msg-str name-field] 
-                                           :columns 1)
+                    :content (s/vertical-panel :items [msg-str name-field])
                     :success-fn (partial success-fn))
       s/pack! (.setLocationRelativeTo @root) s/show!)
     (category-fn)))
@@ -80,12 +77,29 @@
   (let [msg-key (str "Do you want to remove " (poll-category-text)
                      " " (poll-selection-text) "?")
         success-fn (fn [& _] (data/remove-construct! (poll-category-key)
-                                                     (poll-selection-key))
-                     (category-fn))]
+                                                     (poll-selection-key)))]
     (when-not (nil? (poll-selection-text))
       (doto (s/dialog :option-type :yes-no :content msg-key
                       :success-fn (partial success-fn))
-        s/pack! (.setLocationRelativeTo @root) s/show!))))
+        s/pack! (.setLocationRelativeTo @root) s/show!))
+    (category-fn)))
+
+(defn satellite-update-panel
+  "Generate update panel for satellite construct."
+  [id]
+  (let [construct (data/get-construct :satellite id)
+        name-field (s/text :text (:name construct))
+        id-field (s/text :text id :editable? false)
+        tle-one-field (s/text :text (nth (:tle construct) 0))
+        tle-two-field (s/text :text (nth (:tle construct) 1))
+        enabled-box (s/checkbox :text "Enabled?"
+                                :selected? (:enabled? construct))
+        update-button (s/button :text "Update")]
+    (sm/mig-panel :items [["Name:"] [name-field "span, grow, pushx"]
+                          ["Id:"] [id-field "span, grow"]
+                          ["TLE Line 1:"] [tle-one-field "span, grow"]
+                          ["TLE Line 2:"] [tle-two-field "span, grow"]
+                          [enabled-box] [update-button]])))
 
 (defn generate-update-panel
   "Generate update panel for selected construct."
@@ -93,8 +107,14 @@
   (let [construct-category (poll-category-key)
         construct-key (poll-selection-key)
         update-panel (s/select @root [:#update-panel])]
-    (s/config!) (condp = construct-category
-      :satellite (sat/generate-update-panel construct-key))))
+    (if-not (nil? (poll-selection-text))
+      (s/config! update-panel 
+                 :items [(condp = construct-category
+                           :satellite
+                           (satellite-update-panel construct-key)
+                           :earth-station ; FIXME: add proper construct panel
+                           (s/grid-panel))])
+      (s/config! update-panel :items [(s/grid-panel)]))))
 
 (defn select-panel
   "Panel for selecting contructs."

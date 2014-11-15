@@ -84,19 +84,43 @@
         s/pack! (.setLocationRelativeTo @root) s/show!))
     (category-fn)))
 
+(defn satellite-update-fn
+  "Update data settings based on update-panel values."
+  [name-field id-field tle-id-field tle-one-field tle-two-field enabled-box & _]
+  (let [name (.trim (s/text name-field))
+        id (.trim (s/text id-field))
+        tle-id (.trim (s/text tle-id-field))
+        tle-one (.trim (s/text tle-one-field))
+        tle-two (.trim (s/text tle-two-field))
+        enabled (s/selection enabled-box)
+        update-fn (fn [key val] 
+                    (data/update-construct! :satellite id key val))]
+    (when-not (clojure.string/blank? name)
+      (update-fn :name name))
+    (update-fn :tle [tle-id tle-one tle-two])
+    (update-fn :enabled? enabled))
+  (category-fn))
+
 (defn satellite-update-panel
   "Generate update panel for satellite construct."
   [id]
   (let [construct (data/get-construct :satellite id)
         name-field (s/text :text (:name construct))
         id-field (s/text :text id :editable? false)
-        tle-one-field (s/text :text (nth (:tle construct) 0))
-        tle-two-field (s/text :text (nth (:tle construct) 1))
+        tle-id-field (s/text :text (nth (:tle construct) 0))
+        tle-one-field (s/text :text (nth (:tle construct) 1))
+        tle-two-field (s/text :text (nth (:tle construct) 2))
         enabled-box (s/checkbox :text "Enabled?"
                                 :selected? (:enabled? construct))
         update-button (s/button :text "Update")]
+    (s/listen update-button :action (partial satellite-update-fn
+                                             name-field id-field
+                                             tle-id-field
+                                             tle-one-field tle-two-field
+                                             enabled-box))
     (sm/mig-panel :items [["Name:"] [name-field "span, grow, pushx"]
                           ["Id:"] [id-field "span, grow"]
+                          ["TLE Name:"] [tle-id-field "span, grow"]
                           ["TLE Line 1:"] [tle-one-field "span, grow"]
                           ["TLE Line 2:"] [tle-two-field "span, grow"]
                           [enabled-box] [update-button]])))

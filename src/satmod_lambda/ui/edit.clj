@@ -6,8 +6,6 @@
             [seesaw.chooser :as choose])
   (:import [java.awt Color]))
 
-(def grid-rows 20)
-
 (def root
   "Panel for editing software constructs."
   (atom nil))
@@ -85,8 +83,9 @@
     (category-fn)))
 
 (defn satellite-update-fn
-  "Update data settings based on update-panel values."
-  [name-field id-field tle-id-field tle-one-field tle-two-field enabled-box & _]
+  "Update data settings based on satellite update-panel values."
+  [name-field id-field tle-id-field 
+   tle-one-field tle-two-field enabled-box & _]
   (let [name (.trim (s/text name-field))
         id (.trim (s/text id-field))
         tle-id (.trim (s/text tle-id-field))
@@ -125,6 +124,51 @@
                           ["TLE Line 2:"] [tle-two-field "span, grow"]
                           [enabled-box] [update-button]])))
 
+(defn earth-station-update-fn
+  "Update data settings based on earth-station update-panel values."
+  [name-field id-field geo-lat-field 
+   geo-lon-field geo-alt-field enabled-box & _]
+  (let [name (.trim (s/text name-field))
+        id (.trim (s/text id-field))
+        geo-lat (try (Double/parseDouble (s/text geo-lat-field))
+                  (catch NumberFormatException _ nil))
+        geo-lon (try (Double/parseDouble (s/text geo-lon-field))
+                  (catch NumberFormatException _ nil))
+        geo-alt (try (Double/parseDouble (s/text geo-alt-field))
+                  (catch NumberFormatException _ nil))
+        enabled (s/selection enabled-box)
+        update-fn (fn [key val] 
+                    (data/update-construct! :earth-station id key val))]
+    (when-not (clojure.string/blank? name)
+      (update-fn :name name))
+    (update-fn :location {:latitude geo-lat :longitude geo-lon 
+                          :altitude geo-alt})
+    (update-fn :enabled? enabled))
+  (category-fn))
+
+(defn earth-station-update-panel
+  "Generate update panel for earth-station construct."
+  [id]
+  (let [construct (data/get-construct :earth-station id)
+        name-field (s/text :text (:name construct))
+        id-field (s/text :text id :editable? false)
+        geo-lat-field (s/text :text (:latitude (:location construct)))
+        geo-lon-field (s/text :text (:longitude (:location construct)))
+        geo-alt-field (s/text :text (:altitude (:location construct)))
+        enabled-box (s/checkbox :text "Enabled?"
+                                :selected? (:enabled? construct))
+        update-button (s/button :text "Update")]
+    (s/listen update-button :action (partial earth-station-update-fn
+                                             name-field id-field
+                                             geo-lat-field geo-lon-field
+                                             geo-alt-field enabled-box))
+    (sm/mig-panel :items [["Name:"] [name-field "span, grow, pushx"]
+                          ["Id:"] [id-field "span, grow"]
+                          ["Latitude(\u00B0):"] [geo-lat-field "span, grow"]
+                          ["Longitude(\u00B0):"] [geo-lon-field "span, grow"]
+                          ["Altitude(m):"] [geo-alt-field "span, grow"]
+                          [enabled-box] [update-button]])))
+
 (defn generate-update-panel
   "Generate update panel for selected construct."
   [& _]
@@ -137,7 +181,7 @@
                            :satellite
                            (satellite-update-panel construct-key)
                            :earth-station ; FIXME: add proper construct panel
-                           (s/grid-panel))])
+                           (earth-station-update-panel construct-key))])
       (s/config! update-panel :items [(s/grid-panel)]))))
 
 (defn select-panel

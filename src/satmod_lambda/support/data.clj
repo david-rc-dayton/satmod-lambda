@@ -18,7 +18,7 @@
 (def border-size 5)
 
 (defn gen-id
-  "Generate (hopefully) unique hexadecimal identifier."
+  "Generate a (hopefully) unique hexadecimal identifier."
   []
   (let [bits 256
         random-gen (Random.)]

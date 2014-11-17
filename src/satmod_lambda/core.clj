@@ -5,7 +5,7 @@
             [seesaw.core :as s]
             [clojure.java.io :as io])
   (:import [org.pushingpixels.substance.api SubstanceLookAndFeel]
-           [org.pushingpixels.substance.api.skin GraphiteSkin]
+           [org.pushingpixels.substance.api.skin GraphiteGlassSkin]
            [javax.swing ImageIcon])
   (:gen-class))
 
@@ -65,7 +65,7 @@
   "Program entry point."
   [& args]
   (let [splash (splash-screen)]
-    (SubstanceLookAndFeel/setSkin (GraphiteSkin.))
+    (SubstanceLookAndFeel/setSkin (GraphiteGlassSkin.))
     (data/load-settings!)
     (s/invoke-later
       (doto (s/frame :title display-name

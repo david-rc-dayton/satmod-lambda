@@ -9,5 +9,4 @@
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
   :aot :all
   :omit-source true
-  ;:aot [satmod-lambda.core]
   :main satmod-lambda.core)

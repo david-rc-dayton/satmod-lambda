@@ -164,9 +164,9 @@
                                              geo-alt-field enabled-box))
     (sm/mig-panel :items [["Name:"] [name-field "span, grow, pushx"]
                           ["Id:"] [id-field "span, grow"]
-                          ["Latitude(\u00B0):"] [geo-lat-field "span, grow"]
-                          ["Longitude(\u00B0):"] [geo-lon-field "span, grow"]
-                          ["Altitude(m):"] [geo-alt-field "span, grow"]
+                          ["Latitude (\u00B0):"] [geo-lat-field "span, grow"]
+                          ["Longitude (\u00B0):"] [geo-lon-field "span, grow"]
+                          ["Altitude (m):"] [geo-alt-field "span, grow"]
                           [enabled-box] [update-button]])))
 
 (defn generate-update-panel

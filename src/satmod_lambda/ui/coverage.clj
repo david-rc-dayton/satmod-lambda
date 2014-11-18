@@ -1,6 +1,7 @@
 (ns satmod-lambda.ui.coverage
   (:require [satmod-lambda.support.time :as time]
-            [seesaw.core :as s]))
+            [seesaw.core :as s])
+  (:import [java.awt.event ActionListener]))
 
 (def root (atom nil))
 
@@ -17,6 +18,14 @@
     (when-not (.getValueIsAdjusting slider)
       (swap! simulation-time merge {:hour hour :minute minute}))))
 
+(defn date-fn
+  "Update coverage window display based on date-picker values."
+  [date-picker & _]
+  (let [date (.getDate date-picker)
+        date-map (apply dissoc (time/date->hash-map date)
+                        [:hour :minute :second])]
+    (swap! simulation-time merge date-map)))
+
 (defn time-panel
   "Generate panel for controling simulation time in coverage window."
   []
@@ -26,9 +35,12 @@
                               :minor-tick-spacing 60 :major-tick-spacing 240
                               :paint-track? true)
         time-label (s/label :id :time-label :text "00:00z")
-        date-picker (org.jdesktop.swingx.JXDatePicker.)]
+        date-picker (doto (org.jdesktop.swingx.JXDatePicker.)
+                      (.setTimeZone (java.util.TimeZone/getTimeZone "UTC")))]
     (.setDate date-picker (time/now))
     (s/listen time-slider :selection (partial time-fn time-slider time-label))
+    (.addActionListener date-picker
+      (reify ActionListener (actionPerformed [& _] (date-fn date-picker))))
     (s/horizontal-panel :items [time-label time-slider date-picker])))
 
 (defn coverage-panel

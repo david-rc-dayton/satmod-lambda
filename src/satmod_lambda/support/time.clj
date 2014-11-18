@@ -21,7 +21,7 @@
 (defn date->hash-map
   "Create a map containing the keys `{:year :month :day :hour :minute :second}`
    in UTC time for a given Java Date Object."
-  [^java.util.Date date]
+  [date]
   (let [calendar (doto (java.util.Calendar/getInstance
                          (java.util.TimeZone/getTimeZone "UTC"))
                    (.setTime date))

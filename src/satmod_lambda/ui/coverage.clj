@@ -4,7 +4,7 @@
             [satmod-lambda.support.data :as data]
             [seesaw.core :as s]
             [seesaw.mig :as sm])
-  (:import [java.awt.event ActionListener ComponentListener]
+  (:import [java.awt.event ActionListener]
            [java.awt.image BufferedImage]
            [java.awt Image]
            [javax.swing ImageIcon JLabel]
@@ -59,10 +59,8 @@
   "Generate options panel in coverage window"
   []
   (let [image-button (s/button :id :image-button :text "Save Image")
-        animate-button (s/button :id :animate-button :text "Save Animation")
         grid-toggle (s/toggle :id :grid-toggle :text "Show Grid Lines")]
     (s/scrollable (sm/mig-panel :items [[image-button "span, grow"] 
-                                        [animate-button "span, grow"]
                                         [(s/separator) "span, grow"]
                                         [grid-toggle "span, grow"]])
                   :hscroll :never)))

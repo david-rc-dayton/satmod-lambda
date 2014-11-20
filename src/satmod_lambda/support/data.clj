@@ -6,14 +6,14 @@
 
 (def settings-file (str settings-dir "/settings.edn"))
 
-(def default-color {:r 0 :g 255 :b 0})
-
 (def categories
   "Available construct categories and their keyword maps."
   {"Satellite"     :satellite
    "Earth Station" :earth-station})
 
-(def settings (atom {}))
+(def settings (atom {:coverage [{:r 255 :g 0 :b 0}                         ; red
+                                {:r 255 :g 255 :b 0}                    ; yellow
+                                {:r 0 :g 255 :b 0}]}))                    ; blue
 
 (def border-size 5)
 

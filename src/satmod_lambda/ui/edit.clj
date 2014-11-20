@@ -180,7 +180,7 @@
                  :items [(condp = construct-category
                            :satellite
                            (satellite-update-panel construct-key)
-                           :earth-station ; FIXME: add proper construct panel
+                           :earth-station
                            (earth-station-update-panel construct-key))])
       (s/config! update-panel :items [(s/grid-panel)]))))
 

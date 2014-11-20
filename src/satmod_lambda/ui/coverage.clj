@@ -1,13 +1,24 @@
 (ns satmod-lambda.ui.coverage
   (:require [satmod-lambda.support.time :as time]
+            [satmod-lambda.support.color :as color]
+            [satmod-lambda.support.data :as data]
             [seesaw.core :as s]
             [seesaw.mig :as sm])
-  (:import [java.awt.event ActionListener]))
+  (:import [java.awt.event ActionListener ComponentListener]
+           [java.awt.image BufferedImage]
+           [java.awt Image]
+           [javax.swing ImageIcon JLabel]
+           [javax.imageio ImageIO]))
 
 (def root (atom nil))
 
 (def simulation-time (atom (merge (time/date->hash-map (time/now))
                                   {:hour 0 :minute 0 :second 0})))
+
+(def base-image
+  (ImageIO/read (clojure.java.io/resource "worldmap_grayscale.png")))
+
+(def coverage-image (atom nil))
 
 (defn time-fn
   "Update coverage window display based on time-slider values."
@@ -56,14 +67,55 @@
                                         [grid-toggle "span, grow"]])
                   :hscroll :never)))
 
+(defn copy-image
+  "Make a deep copy of a buffered image."
+  [buffered-image]
+  (let [cm (.getColorModel buffered-image)
+        alpha? (.isAlphaPremultiplied cm)
+        raster (.copyData buffered-image nil)]
+    (BufferedImage. cm raster alpha? nil)))
+
+(defn initialize-image
+  "Paint coverage image with a zero-coverage baseline."
+  [image]
+  (let [x (.getWidth image)
+        y (.getHeight image)
+        c (color/map->color (merge (first (:coverage @data/settings)) {:a 165}))
+        g (.getGraphics image)]
+    (.setColor g c)
+    (.fillRect g 0 0 (.getWidth image) (.getHeight image))
+    image))
+
+(defn draw-image
+  "Create new satellite coverage image and store in coverage-image atom."
+  [& _]
+  (let [img (copy-image base-image)
+        g (.getGraphics img)
+        overlay-in (BufferedImage. 360 180 BufferedImage/TYPE_4BYTE_ABGR)
+        overlay-out (-> overlay-in initialize-image)
+        proc (.getScaledInstance overlay-out
+               (.getWidth img) (.getHeight img) Image/SCALE_FAST)]
+    (.drawImage g proc 0 0 nil)
+    (reset! coverage-image img)))
+
+(defn update-image
+  "Update coverage image display."
+  [& _]
+  (let [mp (s/select @root [:#map-panel])
+        scaled-img (.getScaledInstance @coverage-image
+                     (.getWidth mp) (.getHeight mp) Image/SCALE_FAST)]
+    (s/invoke-now (s/config! mp :items [(JLabel. (ImageIcon. scaled-img))]))))
+
 (defn map-panel
   "Generate coverage map panel in coverage window."
   []
-  (s/horizontal-panel :items ["(insert map here)"]))
+  (doto (s/horizontal-panel :id :map-panel)
+    (s/listen :component-resized (partial update-image))))
 
 (defn coverage-panel
   "Panel for viewing satellite coverage."
   []
+  (draw-image)
   (reset! root (s/border-panel :north (time-panel)
                                :west (option-panel)
                                :center (map-panel))))

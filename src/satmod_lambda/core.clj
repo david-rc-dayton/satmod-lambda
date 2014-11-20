@@ -50,7 +50,6 @@
         display-panel (s/card-panel :items [[(cov/coverage-panel) :cov-panel]
                                             [(edit/edit-panel) :edit-panel]]
                                     :border data/border-size)]
-    ;; add change-card listeners to buttons
     (s/listen coverage-button 
               :action (fn [_] (s/show-card! display-panel :cov-panel)))
     (s/listen edit-button 

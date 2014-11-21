@@ -20,7 +20,7 @@
 
 (def splash-image (io/resource "splash.png"))
 
-(def window-size [800 :by 600])
+(def window-size [854 :by 480])
 
 (def root 
   "Main program panel."

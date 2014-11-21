@@ -20,51 +20,6 @@
 
 (def coverage-image (atom nil))
 
-(defn time-fn
-  "Update coverage window display based on time-slider values."
-  [slider label & _]
-  (let [hour (int (/ (s/selection slider) 60))
-        minute (rem (s/selection slider) 60)
-        text (format "  %02d:%02dz  " hour minute)]
-    (s/text! label text)
-    (when-not (.getValueIsAdjusting slider)
-      (swap! simulation-time merge {:hour hour :minute minute}))))
-
-(defn date-fn
-  "Update coverage window display based on date-picker values."
-  [date-picker & _]
-  (let [date (.getDate date-picker)
-        date-map (apply dissoc (time/date->hash-map date)
-                        [:hour :minute :second])]
-    (swap! simulation-time merge date-map)))
-
-(defn time-panel
-  "Generate panel for controling simulation time in coverage window."
-  []
-  (let [time-slider (s/slider :id :time-slider
-                              :orientation :horizontal
-                              :min 0 :max 1439 :value 0 
-                              :minor-tick-spacing 60 :major-tick-spacing 240
-                              :paint-track? true)
-        time-label (s/label :id :time-label :text "  00:00z  ")
-        date-picker (doto (org.jdesktop.swingx.JXDatePicker.)
-                      (.setTimeZone (java.util.TimeZone/getTimeZone "UTC")))]
-    (.setDate date-picker (time/now))
-    (s/listen time-slider :selection (partial time-fn time-slider time-label))
-    (.addActionListener date-picker
-      (reify ActionListener (actionPerformed [& _] (date-fn date-picker))))
-    (s/horizontal-panel :items [date-picker time-label time-slider])))
-
-(defn option-panel
-  "Generate options panel in coverage window"
-  []
-  (let [image-button (s/button :id :image-button :text "Save Image")
-        grid-toggle (s/toggle :id :grid-toggle :text "Show Grid Lines")]
-    (s/scrollable (sm/mig-panel :items [[image-button "span, grow"] 
-                                        [(s/separator) "span, grow"]
-                                        [grid-toggle "span, grow"]])
-                  :hscroll :never)))
-
 (defn copy-image
   "Make a deep copy of a buffered image."
   [buffered-image]
@@ -96,7 +51,7 @@
     (.drawImage g proc 0 0 nil)
     (reset! coverage-image img)))
 
-(defn update-image
+(defn display-image
   "Update coverage image display."
   [& _]
   (let [mp (s/select @root [:#map-panel])
@@ -104,11 +59,64 @@
                      (.getWidth mp) (.getHeight mp) Image/SCALE_FAST)]
     (s/invoke-now (s/config! mp :items [(JLabel. (ImageIcon. scaled-img))]))))
 
+(defn refresh-image
+  "Redraw the coverage image in system memory, and display the new image in
+   the coverage panel."
+  [& _]
+  (future (draw-image) (display-image)))
+
+(defn time-fn
+  "Update coverage window display based on time-slider values."
+  [slider label & _]
+  (let [hour (int (/ (s/selection slider) 60))
+        minute (rem (s/selection slider) 60)
+        text (format "  %02d:%02dz  " hour minute)]
+    (s/text! label text)
+    (when-not (.getValueIsAdjusting slider)
+      (swap! simulation-time merge {:hour hour :minute minute})
+      (refresh-image))))
+
+(defn date-fn
+  "Update coverage window display based on date-picker values."
+  [date-picker & _]
+  (let [date (.getDate date-picker)
+        date-map (apply dissoc (time/date->hash-map date)
+                        [:hour :minute :second])]
+    (swap! simulation-time merge date-map)
+    (refresh-image)))
+
+(defn time-panel
+  "Generate panel for controling simulation time in coverage window."
+  []
+  (let [time-slider (s/slider :id :time-slider
+                              :orientation :horizontal
+                              :min 0 :max 1439 :value 0 
+                              :minor-tick-spacing 60 :major-tick-spacing 240
+                              :paint-track? true)
+        time-label (s/label :id :time-label :text "  00:00z  ")
+        date-picker (doto (org.jdesktop.swingx.JXDatePicker.)
+                      (.setTimeZone (java.util.TimeZone/getTimeZone "UTC")))]
+    (.setDate date-picker (time/now))
+    (s/listen time-slider :selection (partial time-fn time-slider time-label))
+    (.addActionListener date-picker
+      (reify ActionListener (actionPerformed [& _] (date-fn date-picker))))
+    (s/horizontal-panel :items [date-picker time-label time-slider])))
+
+(defn option-panel
+  "Generate options panel in coverage window"
+  []
+  (let [image-button (s/button :id :image-button :text "Save Image")
+        grid-toggle (s/toggle :id :grid-toggle :text "Show Grid Lines")]
+    (s/scrollable (sm/mig-panel :items [[image-button "span, grow"] 
+                                        [(s/separator) "span, grow"]
+                                        [grid-toggle "span, grow"]])
+                  :hscroll :never)))
+
 (defn map-panel
   "Generate coverage map panel in coverage window."
   []
   (doto (s/horizontal-panel :id :map-panel)
-    (s/listen :component-resized (partial update-image))))
+    (s/listen :component-resized (partial display-image))))
 
 (defn coverage-panel
   "Panel for viewing satellite coverage."

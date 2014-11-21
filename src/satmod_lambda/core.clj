@@ -40,7 +40,7 @@
   "Splash-screen window."
   []
   (doto (s/window :content splash-image) 
-    s/pack! center! s/show! (.setAlwaysOnTop true)))
+    s/pack! center! s/show! (.setAlwaysOnTop true) .requestFocus))
 
 (defn main-panel
   "Generate program's main panel."

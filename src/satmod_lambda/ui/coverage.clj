@@ -33,7 +33,8 @@
   [image]
   (let [x (.getWidth image)
         y (.getHeight image)
-        c (color/map->color (merge (first (:coverage @data/settings)) {:a 165}))
+        color-map (get-in @data/settings [:coverage] :colors)
+        c (color/map->color (merge (first color-map) {:a 165}))
         g (.getGraphics image)]
     (.setColor g c)
     (.fillRect g 0 0 (.getWidth image) (.getHeight image))

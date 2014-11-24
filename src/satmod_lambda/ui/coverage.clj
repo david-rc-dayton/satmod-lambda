@@ -2,6 +2,7 @@
   (:require [satmod-lambda.support.time :as time]
             [satmod-lambda.support.color :as color]
             [satmod-lambda.support.data :as data]
+            [satmod-lambda.construct.satellite :as sat]
             [seesaw.core :as s]
             [seesaw.mig :as sm])
   (:import [java.awt.event ActionListener]
@@ -19,6 +20,13 @@
   (ImageIO/read (clojure.java.io/resource "worldmap_grayscale.png")))
 
 (def coverage-image (atom nil))
+
+(defn get-satellite-locations
+  "Get the list of enabled satellites from the data/settings atom."
+  []
+  (let [sats (filter :enabled? (vals (:satellite @data/settings)))
+        date (time/hash-map->date @simulation-time)]
+    (map #(sat/propagate (:tle %) date) sats)))
 
 (defn copy-image
   "Make a deep copy of a buffered image."
@@ -39,6 +47,13 @@
     (.setColor g c)
     (.fillRect g 0 0 (.getWidth image) (.getHeight image))
     image))
+
+(defn draw-coverage
+  "Paint coverage image with satellite coverage map."
+  [image]
+  (let [x (.getWidth image)
+        y (.getHeight image)
+        color-map (get-in @data/settings [:coverage] :colors)]))
 
 (defn draw-image
   "Create new satellite coverage image and store in coverage-image atom."

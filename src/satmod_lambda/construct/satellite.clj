@@ -1,4 +1,6 @@
 (ns satmod-lambda.construct.satellite
+  (:require [satmod-lambda.construct.common :as c]
+            [satmod-lambda.support.data :as data])
   (:import [org.apache.commons.lang StringUtils]
            [uk.me.g4dpz.satellite SatelliteFactory TLE]))
 
@@ -43,3 +45,54 @@
                     :else temp-longitude)
         altitude (*  (.getAltitude position) 1000)]
     {:latitude latitude :longitude longitude :altitude altitude}))
+
+(defn adist-haversine
+  "Calculate angular distance (in degrees) between two points, using maps
+   containing the keys `{:latitude :longitude}` in degrees as arguments. This
+   function uses the Haversine Formula (the slowest, most accurate method) for
+   angular distance computation."
+  [{:keys [latitude longitude] :as start-point}
+   {:keys [latitude longitude] :as end-point}]
+  (let [p1 (c/deg->rad (:latitude start-point))
+        p2 (c/deg->rad (:latitude end-point))
+        delta-p (c/deg->rad (- (:latitude end-point)
+                               (:latitude start-point)))
+        delta-l (c/deg->rad (- (:longitude end-point)
+                               (:longitude start-point)))
+        a (+ (Math/pow (Math/sin (/ delta-p 2)) 2)
+             (* (Math/cos p1) (Math/cos p2)
+                (Math/pow (Math/sin (/ delta-l 2)) 2)))]
+    (c/rad->deg (* 2 (Math/atan2 (Math/sqrt a) (Math/sqrt (- 1 a)))))))
+
+(defn adist-cosine
+  "Calculate angular distance (in degrees) between two points, using maps
+   containing the keys `{:latitude :longitude}` in degrees as arguments. This
+   function uses the Spherical Law of Cosines (faster, but less accurate than 
+   the Haversine Formula) for angular distance computation."
+  [{:keys [latitude longitude] :as start-point}
+   {:keys [latitude longitude] :as end-point}]
+  (let [p1 (c/deg->rad (:latitude start-point))
+        p2 (c/deg->rad (:latitude end-point))
+        delta-l (c/deg->rad (- (:longitude end-point) 
+                               (:longitude start-point)))]
+    (c/rad->deg (Math/acos (* (+ (* (Math/sin p1) (Math/sin p2))
+                                 (* (Math/cos p1) (Math/cos p2) 
+                                    (Math/cos delta-l))))))))
+
+(defn adist-horizon
+  "Calculate the angular distance to horizon from a satellite, denoted by a
+   location map containing the keys `{:latitude :altitude}` in degrees and
+   meters. This function returns the angular distance to the horizon from nadir
+   in degrees."
+  [{:keys [latitude altitude] :as satellite}]
+  (let [re (c/geo-radius satellite)
+        re-plus-h (+ re altitude)]
+    (c/rad->deg (Math/acos (/ re re-plus-h)))))
+
+(defn adist
+  "Call angular distance function indicated in data/settings atom."
+  [& args]
+  (let [adist-key (get-in @data/settings [:coverage :adist])]
+    (condp = adist-key
+      :haversine (apply adist-haversine args)
+      :cosin (apply adist-cosine args))))

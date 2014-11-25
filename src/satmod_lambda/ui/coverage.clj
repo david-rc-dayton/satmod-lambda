@@ -41,7 +41,7 @@
   [image]
   (let [x (.getWidth image)
         y (.getHeight image)
-        color-map (get-in @data/settings [:coverage] :colors)
+        color-map (get-in @data/settings [:coverage :colors])
         c (color/map->color (merge (first color-map) {:a 165}))
         g (.getGraphics image)]
     (.setColor g c)
@@ -53,7 +53,7 @@
   [image]
   (let [x (.getWidth image)
         y (.getHeight image)
-        color-map (get-in @data/settings [:coverage] :colors)]))
+        color-map (get-in @data/settings [:coverage :colors])]))
 
 (defn draw-image
   "Create new satellite coverage image and store in coverage-image atom."

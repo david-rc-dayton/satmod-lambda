@@ -21,9 +21,9 @@
 
 (def coverage-image (atom nil))
 
-(defn alpha [] (get-in @data/settings [:coverage :alpha]))
+(defn alpha [] {:a (get-in @data/settings [:coverage :alpha])})
 
-(defn coordinates []
+(def coordinates 
   (for [lat (range -90 90) lon (range -180 180)] 
     {:latitude lat :longitude lon}))
 
@@ -37,12 +37,12 @@
         date (time/hash-map->date @simulation-time)]
     (map #(sat/propagate (:tle %) date) sats)))
 
-(defn satellite-view
+(def satellite-view
   "Get list of points-in-view of satellites, as well as an integral coverage
    amount for each point."
-  [satellite]
-  (let [horizon (sat/adist-horizon satellite)]
-    (filter #(<= (sat/adist satellite %) horizon) (coordinates))))
+  (memoize (fn [satellite]
+             (let [horizon (sat/adist-horizon satellite)]
+               (filter #(<= (sat/adist satellite %) horizon) coordinates)))))
 
 (defn satellite-coverage
   "Generate frequency chart for total satellite coverage over the Earth's
@@ -50,7 +50,8 @@
   []
   (let [loc (satellite-locations)]
     (if-not (zero? (count loc))
-      (frequencies (apply concat (map satellite-view (satellite-locations))))
+      (frequencies (apply concat 
+                          (map satellite-view (satellite-locations))))
       (hash-map))))
 
 (defn copy-image
@@ -66,8 +67,9 @@
   [^BufferedImage image]
   (let [x (.getWidth image)
         y (.getHeight image)
+        a (alpha)
         color-map (get-in @data/settings [:coverage :colors])
-        c (color/map->color (merge (first color-map) {:a (alpha)}))
+        c (color/map->color (merge (first color-map) a))
         g (.getGraphics image)]
     (.setColor g c)
     (.fillRect g 0 0 (.getWidth image) (.getHeight image))
@@ -78,14 +80,17 @@
   [^BufferedImage image]
   (let [x (.getWidth image)
         y (.getHeight image)
+        a (alpha)
         color-map (map color/map->color
-                       (map #(merge % {:a (alpha)}) 
+                       (map #(merge % a) 
                             (get-in @data/settings [:coverage :colors])))
         paint-fn (fn [point-cov] 
-                   (let [trans (convert-point (key point-cov))]
+                   (let [trans (convert-point (key point-cov))
+                         cap-cov (if (< (val point-cov) (dec (count color-map)))
+                                   (val point-cov)
+                                   (dec (count color-map)))]
                      (.setRGB image (:x trans) (:y trans)
-                       (.getRGB ^java.awt.Color (nth color-map 
-                                                     (val point-cov))))))]
+                       (.getRGB ^java.awt.Color (nth color-map cap-cov)))))]
     (dorun (map paint-fn (satellite-coverage)))
     image))
 
@@ -114,7 +119,7 @@
         overlay-out (-> overlay-in
                       initialize-image draw-coverage smooth-image)
         proc (.getScaledInstance ^BufferedImage overlay-out
-               (.getWidth img) (.getHeight img) Image/SCALE_FAST)]
+               (.getWidth img) (.getHeight img) Image/SCALE_AREA_AVERAGING)]
     (.drawImage g proc 0 0 nil)
     (reset! coverage-image img)))
 
@@ -125,14 +130,14 @@
         ^BufferedImage scaled-img (.getScaledInstance
                                     ^BufferedImage @coverage-image
                                     (.getWidth mp) (.getHeight mp)
-                                    Image/SCALE_FAST)]
-    (s/invoke-now (s/config! mp :items [(JLabel. (ImageIcon. scaled-img))]))))
+                                    Image/SCALE_AREA_AVERAGING)]
+    (s/invoke-later (s/config! mp :items [(JLabel. (ImageIcon. scaled-img))]))))
 
 (defn refresh-image
   "Redraw the coverage image in system memory, and display the new image in
    the coverage panel."
   [& _]
-  (s/invoke-now (draw-image) (display-image)))
+  (s/invoke-later (draw-image) (display-image)))
 
 (defn time-fn
   "Update coverage window display based on time-slider values."

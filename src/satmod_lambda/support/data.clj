@@ -15,8 +15,11 @@
                      :earth-station {}
                      :coverage {:colors [{:r 255 :g 0 :b 0}                ; red
                                          {:r 255 :g 255 :b 0}           ; yellow
-                                         {:r 0 :g 255 :b 0}]             ; green
-                                :alpha 165
+                                         {:r 0 :g 255 :b 0}              ; green
+                                         {:r 0 :g 0 :b 255}               ; blue  
+                                         {:r 128 :g 0 :b 128}           ; purple
+                                         {:r 176 :g 224 :b 230}]        ; cobalt   
+                                :alpha 145
                                 :adist :cosine
                                 :smooth 4}}))
 

@@ -34,23 +34,24 @@
 
 (defn satellite-locations
   "Get the list of enabled satellites from the data/settings atom."
-  []
+  [time-map]
   (let [sats (filter :enabled? (vals (:satellite @data/settings)))
-        date (time/hash-map->date @simulation-time)]
+        date (time/hash-map->date time-map)]
     (map #(sat/propagate (:tle %) date) sats)))
 
 (def satellite-view
   "Get list of points-in-view of satellites, as well as an integral coverage
    amount for each point."
-  (memoize (fn [{:keys [latitude longitude altitude] :as satellite}]
-             (let [horizon (sat/adist-horizon satellite)]
-               (filter #(<= (sat/adist satellite %) horizon) coordinates)))))
+  (memoize 
+    (fn [{:keys [latitude longitude altitude] :as satellite}]
+      (let [horizon (sat/adist-horizon satellite)]
+        (filter #(<= (sat/adist satellite %) horizon) coordinates)))))
 
 (defn satellite-coverage
   "Generate frequency chart for total satellite coverage over the Earth's
    surface."
   []
-  (let [loc (satellite-locations)]
+  (let [loc (satellite-locations @simulation-time)]
     (if-not (zero? (count loc))
       (frequencies (apply concat 
                           (map satellite-view loc)))
@@ -133,14 +134,14 @@
         ^BufferedImage scaled-img (.getScaledInstance
                                     ^BufferedImage @coverage-image
                                     (.getWidth mp) (.getHeight mp)
-                                    Image/SCALE_AREA_AVERAGING)]
-    (s/invoke-later (s/config! mp :items [(JLabel. (ImageIcon. scaled-img))]))))
+                                    Image/SCALE_FAST)]
+    (s/invoke-now (s/config! mp :items [(JLabel. (ImageIcon. scaled-img))]))))
 
 (defn refresh-image
   "Redraw the coverage image in system memory, and display the new image in
    the coverage panel."
   [& _]
-  (s/invoke-later (draw-image) (display-image)))
+  (future (draw-image) (display-image)))
 
 (defn time-fn
   "Update coverage window display based on time-slider values."

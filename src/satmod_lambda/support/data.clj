@@ -20,10 +20,10 @@
                                          {:r 0 :g 255 :b 183}       ; light blue
                                          {:r 0 :g 13 :b 255}          ;dark blue
                                          {:r 255 :g 0 :b 230}]         ; magenta
-                                :alpha 160
+                                :alpha 182
                                 :adist :haversine
                                 :smooth 4
-                                :bright 35}}))
+                                :bright 50}}))
 
 (def border-size 5)
 

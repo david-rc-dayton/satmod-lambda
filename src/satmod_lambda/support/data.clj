@@ -11,17 +11,19 @@
   {"Satellite"     :satellite
    "Earth Station" :earth-station})
 
-(def settings (atom {:satellite {}
+(def settings (atom {:version "0.0.1"
+                     :satellite {}
                      :earth-station {}
-                     :coverage {:colors [{:r 255 :g 0 :b 0}                ; red
-                                         {:r 255 :g 255 :b 0}           ; yellow
-                                         {:r 0 :g 255 :b 0}              ; green
-                                         {:r 0 :g 0 :b 255}               ; blue  
-                                         {:r 128 :g 0 :b 128}           ; purple
-                                         {:r 176 :g 224 :b 230}]        ; cobalt   
-                                :alpha 145
-                                :adist :cosine
-                                :smooth 4}}))
+                     :coverage {:colors [{:r 255 :g 9 :b 0}                ; red
+                                         {:r 255 :g 251 :b 0}           ; yellow
+                                         {:r 26 :g 255 :b 0}             ; green
+                                         {:r 0 :g 255 :b 183}       ; light blue
+                                         {:r 0 :g 13 :b 255}          ;dark blue
+                                         {:r 255 :g 0 :b 230}]         ; magenta
+                                :alpha 160
+                                :adist :haversine
+                                :smooth 4
+                                :bright 35}}))
 
 (def border-size 5)
 

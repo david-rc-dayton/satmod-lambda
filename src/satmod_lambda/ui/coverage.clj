@@ -23,6 +23,8 @@
 
 (defn alpha [] {:a (get-in @data/settings [:coverage :alpha])})
 
+(defn bright [] (get-in @data/settings [:coverage :bright]))
+
 (def coordinates 
   (for [lat (range -90 90) lon (range -180 180)] 
     {:latitude lat :longitude lon}))
@@ -40,7 +42,7 @@
 (def satellite-view
   "Get list of points-in-view of satellites, as well as an integral coverage
    amount for each point."
-  (memoize (fn [satellite]
+  (memoize (fn [{:keys [latitude longitude altitude] :as satellite}]
              (let [horizon (sat/adist-horizon satellite)]
                (filter #(<= (sat/adist satellite %) horizon) coordinates)))))
 
@@ -51,7 +53,7 @@
   (let [loc (satellite-locations)]
     (if-not (zero? (count loc))
       (frequencies (apply concat 
-                          (map satellite-view (satellite-locations))))
+                          (map satellite-view loc)))
       (hash-map))))
 
 (defn copy-image
@@ -69,7 +71,8 @@
         y (.getHeight image)
         a (alpha)
         color-map (get-in @data/settings [:coverage :colors])
-        c (color/map->color (merge (first color-map) a))
+        c (color/map->color (color/adjust-brightness 
+                              (merge (first color-map) a) (bright)))
         g (.getGraphics image)]
     (.setColor g c)
     (.fillRect g 0 0 (.getWidth image) (.getHeight image))
@@ -82,7 +85,7 @@
         y (.getHeight image)
         a (alpha)
         color-map (map color/map->color
-                       (map #(merge % a) 
+                       (map #(color/adjust-brightness (merge % a) (bright))
                             (get-in @data/settings [:coverage :colors])))
         paint-fn (fn [point-cov] 
                    (let [trans (convert-point (key point-cov))

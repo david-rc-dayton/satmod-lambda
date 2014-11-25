@@ -7,7 +7,7 @@ Satellite constellation analysis software.
 *Currently a work-in-progress.* The purpose of this software is to efficiently
 model satellite coverage, and possibly other useful constellation management
 metrics. To build from source, import the project into [Nightcode][1] (tested
-using version 0.4.0) and select `Build` to download the code dependencies and
+using version 0.4.2) and select `Build` to download the code dependencies and
 generate a stand-alone (executable) JAR.
 
 To run the stand-alone JAR file, using Java 7 or higher, execute:

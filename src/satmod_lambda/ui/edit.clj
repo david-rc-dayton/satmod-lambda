@@ -28,7 +28,7 @@
 (defn poll-category-text
   "Get the currenly selected category text."
   []
-  (.toLowerCase (s/selection (poll-category-box))))
+  (.toLowerCase ^String (s/selection (poll-category-box))))
 
 (defn poll-selection-box
   "Get the current category selection box."
@@ -38,13 +38,13 @@
 (defn poll-selection-key
   "Get currently selected construct id."
   []
-  (let [s-item (.getSelectedValue (poll-selection-box))]
+  (let [s-item (.getSelectedValue ^javax.swing.JList (poll-selection-box))]
     (:id s-item)))
 
 (defn poll-selection-text
   "Get currently selected construct name"
   []
-  (let [s-item (.getSelectedValue (poll-selection-box))]
+  (let [s-item (.getSelectedValue ^javax.swing.JList (poll-selection-box))]
     (:name s-item)))
 
 (defn category-fn
@@ -56,16 +56,18 @@
 (defn add-fn
   "Add construct to settings file."
   [& _]
-  (let [msg-str (str "Enter name of new " (poll-category-text) " construct:")
+  (let [^String msg-str (str "Enter name of new " 
+                             (poll-category-text) " construct:")
         name-field (s/text)
-        success-fn (fn [& _] (let [new-name (.trim (s/text name-field))]
-                               (if-not (.isEmpty new-name)
+        success-fn (fn [& _] (let [new-name (.trim ^String (s/text name-field))]
+                               (if-not (.isEmpty ^String new-name)
                                  (data/add-construct! (poll-category-key) 
                                                       new-name)
                                  (s/alert "Name cannot be blank."))))]
-    (doto (s/dialog :option-type :ok-cancel
-                    :content (s/vertical-panel :items [msg-str name-field])
-                    :success-fn (partial success-fn))
+    (doto ^javax.swing.JDialog (s/dialog :option-type :ok-cancel
+                                         :content (s/vertical-panel 
+                                                    :items [msg-str name-field])
+                                         :success-fn (partial success-fn))
       s/pack! (.setLocationRelativeTo @root) s/show!)
     (category-fn)))
 
@@ -77,8 +79,9 @@
         success-fn (fn [& _] (data/remove-construct! (poll-category-key)
                                                      (poll-selection-key)))]
     (when-not (nil? (poll-selection-text))
-      (doto (s/dialog :option-type :yes-no :content msg-key
-                      :success-fn (partial success-fn))
+      (doto ^javax.swing.JDialog (s/dialog :option-type 
+                                           :yes-no :content msg-key
+                                           :success-fn (partial success-fn))
         s/pack! (.setLocationRelativeTo @root) s/show!))
     (category-fn)))
 
@@ -86,11 +89,11 @@
   "Update data settings based on satellite update-panel values."
   [name-field id-field tle-id-field 
    tle-one-field tle-two-field enabled-box & _]
-  (let [name (.trim (s/text name-field))
-        id (.trim (s/text id-field))
-        tle-id (.trim (s/text tle-id-field))
-        tle-one (.trim (s/text tle-one-field))
-        tle-two (.trim (s/text tle-two-field))
+  (let [name (.trim ^String (s/text name-field))
+        id (.trim ^String (s/text id-field))
+        tle-id (.trim ^String (s/text tle-id-field))
+        tle-one (.trim ^String (s/text tle-one-field))
+        tle-two (.trim ^String (s/text tle-two-field))
         enabled (s/selection enabled-box)
         update-fn (fn [key val] 
                     (data/update-construct! :satellite id key val))]
@@ -128,8 +131,8 @@
   "Update data settings based on earth-station update-panel values."
   [name-field id-field geo-lat-field 
    geo-lon-field geo-alt-field enabled-box & _]
-  (let [name (.trim (s/text name-field))
-        id (.trim (s/text id-field))
+  (let [name (.trim ^String (s/text name-field))
+        id (.trim ^String (s/text id-field))
         geo-lat (try (Double/parseDouble (s/text geo-lat-field))
                   (catch NumberFormatException _ nil))
         geo-lon (try (Double/parseDouble (s/text geo-lon-field))

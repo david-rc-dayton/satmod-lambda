@@ -55,7 +55,7 @@
 
 (defn copy-image
   "Make a deep copy of a buffered image."
-  [buffered-image]
+  [^BufferedImage buffered-image]
   (let [cm (.getColorModel buffered-image)
         alpha? (.isAlphaPremultiplied cm)
         raster (.copyData buffered-image nil)]
@@ -63,7 +63,7 @@
 
 (defn initialize-image
   "Paint coverage image with a zero-coverage baseline."
-  [image]
+  [^BufferedImage image]
   (let [x (.getWidth image)
         y (.getHeight image)
         color-map (get-in @data/settings [:coverage :colors])
@@ -75,7 +75,7 @@
 
 (defn draw-coverage
   "Paint coverage image with satellite coverage map."
-  [image]
+  [^BufferedImage image]
   (let [x (.getWidth image)
         y (.getHeight image)
         color-map (map color/map->color
@@ -84,33 +84,36 @@
         paint-fn (fn [point-cov] 
                    (let [trans (convert-point (key point-cov))]
                      (.setRGB image (:x trans) (:y trans)
-                       (.getRGB (nth color-map (val point-cov))))))]
+                       (.getRGB ^java.awt.Color (nth color-map 
+                                                     (val point-cov))))))]
     (dorun (map paint-fn (satellite-coverage)))
     image))
 
 (defn smooth-image
   "Use box-blur on input image."
-  [image]
-  (let [box-root 4
+  [^BufferedImage image]
+  (let [box-root (get-in @data/settings [:coverage :smooth])
         bound (int (/ box-root 2))
         box-num (* box-root box-root)
+        output (BufferedImage. (.getWidth image) (.getHeight image)
+                               BufferedImage/TYPE_4BYTE_ABGR)
         matrix (float-array (take box-num (repeat (float (/ 1 box-num)))))
         op (java.awt.image.ConvolveOp. 
              (java.awt.image.Kernel. box-root box-root matrix)
              java.awt.image.ConvolveOp/EDGE_NO_OP nil)]
-    (.getSubimage (.filter op image nil) bound bound 
-      (- (.getWidth image) (* 2 bound)) 
-      (- (.getHeight image) (* 2 bound)))))
+    (.filter op image output)
+    (.getSubimage output bound bound 
+      (- (.getWidth image) (* 2 bound)) (- (.getHeight image) (* 2 bound)))))
 
 (defn draw-image
   "Create new satellite coverage image and store in coverage-image atom."
   [& _]
-  (let [img (copy-image base-image)
+  (let [^BufferedImage img (copy-image base-image)
         g (.getGraphics img)
         overlay-in (BufferedImage. 360 180 BufferedImage/TYPE_4BYTE_ABGR)
         overlay-out (-> overlay-in
                       initialize-image draw-coverage smooth-image)
-        proc (.getScaledInstance overlay-out
+        proc (.getScaledInstance ^BufferedImage overlay-out
                (.getWidth img) (.getHeight img) Image/SCALE_FAST)]
     (.drawImage g proc 0 0 nil)
     (reset! coverage-image img)))
@@ -118,9 +121,11 @@
 (defn display-image
   "Update coverage image display."
   [& _]
-  (let [mp (s/select @root [:#map-panel])
-        scaled-img (.getScaledInstance @coverage-image
-                     (.getWidth mp) (.getHeight mp) Image/SCALE_FAST)]
+  (let [^javax.swing.JPanel mp (s/select @root [:#map-panel])
+        ^BufferedImage scaled-img (.getScaledInstance
+                                    ^BufferedImage @coverage-image
+                                    (.getWidth mp) (.getHeight mp)
+                                    Image/SCALE_FAST)]
     (s/invoke-now (s/config! mp :items [(JLabel. (ImageIcon. scaled-img))]))))
 
 (defn refresh-image
@@ -136,13 +141,13 @@
         minute (rem (s/selection slider) 60)
         text (format "  %02d:%02dz  " hour minute)]
     (s/text! label text)
-    (when-not (.getValueIsAdjusting slider)
+    (when-not (.getValueIsAdjusting ^javax.swing.JSlider slider)
       (swap! simulation-time merge {:hour hour :minute minute})
       (refresh-image))))
 
 (defn date-fn
   "Update coverage window display based on date-picker values."
-  [date-picker & _]
+  [^org.jdesktop.swingx.JXDatePicker date-picker & _]
   (let [date (.getDate date-picker)
         date-map (apply dissoc (time/date->hash-map date)
                         [:hour :minute :second])]

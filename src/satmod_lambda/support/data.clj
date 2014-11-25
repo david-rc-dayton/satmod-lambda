@@ -17,7 +17,8 @@
                                          {:r 255 :g 255 :b 0}           ; yellow
                                          {:r 0 :g 255 :b 0}]             ; green
                                 :alpha 165
-                                :adist :cosine}}))
+                                :adist :cosine
+                                :smooth 4}}))
 
 (def border-size 5)
 

@@ -10,21 +10,21 @@
    name of the spacecraft; `line2` and `line3` will be lines 1 & 2 of the
    orbital elements."
   [[line1 line2 line3 :as tle]]
-  (TLE. (into-array String tle)))
+  (TLE. ^"[Ljava.lang.String;" (into-array String tle)))
 
 (defn valid-tle?
   "Determine if Three Line Element Set ois valid based on the checksum value for
    each line. This function takes a vector of strings for `[line1 line2 line3]`.
    Output is `true` if the TLE set is valid."
   [[line1 line2 line3 :as tle]]
-  (let [char->int #(Character/getNumericValue %)
+  (let [char->int #(Character/getNumericValue ^char %)
         digits (set (map char (range 48 58)))
         replace-dash #(clojure.string/replace % "-" "1")
         valid? #(= (mod (reduce + (butlast %)) 10) (last %))
         tle-clean (->> (map replace-dash (rest tle))
                     (map #(filter digits (apply vector %)))
                     (map #(map char->int (apply vector %))))]
-    (and (not (clojure.string/blank? (.trim line1)))
+    (and (not (clojure.string/blank? (.trim ^String line1)))
          (every? true? (map valid? tle-clean)))))
 
 (defn propagate
@@ -95,4 +95,4 @@
   (let [adist-key (get-in @data/settings [:coverage :adist])]
     (condp = adist-key
       :haversine (apply adist-haversine args)
-      :cosin (apply adist-cosine args))))
+      :cosine (apply adist-cosine args))))

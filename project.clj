@@ -7,6 +7,7 @@
                  [predict4java "1.1.158.4"]
                  [seesaw "1.4.4"]]
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
+  :profiles {:uberjar {:global-vars {*warn-on-reflection* true}}}
   :aot :all
   :omit-source true
   :main satmod-lambda.core)

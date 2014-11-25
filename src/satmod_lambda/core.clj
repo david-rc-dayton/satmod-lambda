@@ -28,18 +28,18 @@
 
 (defn center!
   "Center frame on screen."
-  [frame]
+  [^javax.swing.JFrame frame]
   (.setLocationRelativeTo frame nil))
 
 (defn maximize!
   "Maximize frame."
-  [frame]
+  [^javax.swing.JFrame frame]
   (.setExtendedState frame 6))
 
 (defn splash-screen
   "Splash-screen window."
   []
-  (doto (s/window :content splash-image) 
+  (doto ^javax.swing.JWindow (s/window :content splash-image) 
     s/pack! center! s/show! (.setAlwaysOnTop true) .requestFocus))
 
 (defn main-panel
@@ -74,4 +74,5 @@
                      :size window-size
                      :minimum-size window-size)
         center! s/show!)
-      (future (do (Thread/sleep 2000) (.dispose splash))))))
+      (future (do (Thread/sleep 2000)
+                (.dispose ^javax.swing.JWindow splash))))))

@@ -11,3 +11,16 @@
   [{:keys [r g b a] :or {:r 0 :g 0 :b 0 :a 255}} brightness]
   (let [br (/ brightness 100)]
     {:r (int (* r br)) :g (int (* g br)) :b (int (* b br)) :a a}))
+
+(defn save-image
+  "Save PNG image to specified file-name after optionally scaling to
+   [width height] dimensions."
+  ([image file-name]
+    (let [check-name (.toLowerCase file-name)
+          f-n (if-not (.endsWith check-name ".png")
+                (str file-name ".png") file-name)]
+      (javax.imageio.ImageIO/write image "png" (java.io.File. file-name))))
+  ([image file-name [width height]]
+    (let [scaled-image (.getScaledInstance image width height
+                         java.awt.Image/SCALE_AREA_AVERAGING)]
+      (save-image scaled-image file-name))))

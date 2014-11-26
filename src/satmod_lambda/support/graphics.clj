@@ -1,4 +1,4 @@
-(ns satmod-lambda.support.color)
+(ns satmod-lambda.support.graphics)
 
 (defn map->color
   "Convert map containing the keys `{:r :g :b :a}` for red, blue, green, and

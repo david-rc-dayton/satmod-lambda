@@ -1,6 +1,6 @@
 (ns satmod-lambda.ui.coverage
   (:require [satmod-lambda.support.time :as time]
-            [satmod-lambda.support.color :as color]
+            [satmod-lambda.support.graphics :as graph]
             [satmod-lambda.support.data :as data]
             [satmod-lambda.construct.satellite :as sat]
             [seesaw.core :as s]
@@ -72,7 +72,7 @@
         y (.getHeight image)
         a (alpha)
         color-map (get-in @data/settings [:coverage :colors])
-        c (color/map->color (color/adjust-brightness 
+        c (graph/map->color (graph/adjust-brightness 
                               (merge (first color-map) a) (bright)))
         g (.getGraphics image)]
     (.setColor g c)
@@ -85,8 +85,8 @@
   (let [x (.getWidth image)
         y (.getHeight image)
         a (alpha)
-        color-map (map color/map->color
-                       (map #(color/adjust-brightness (merge % a) (bright))
+        color-map (map graph/map->color
+                       (map #(graph/adjust-brightness (merge % a) (bright))
                             (get-in @data/settings [:coverage :colors])))
         paint-fn (fn [point-cov] 
                    (let [trans (convert-point (key point-cov))

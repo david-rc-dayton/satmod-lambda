@@ -21,7 +21,7 @@
                                          {:r 0 :g 13 :b 255}          ;dark blue
                                          {:r 255 :g 0 :b 230}]         ; magenta
                                 :alpha 182
-                                :adist :haversine
+                                :adist :cosine
                                 :smooth 4
                                 :bright 50}}))
 

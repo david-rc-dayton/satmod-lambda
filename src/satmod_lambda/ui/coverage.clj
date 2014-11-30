@@ -4,6 +4,7 @@
             [satmod-lambda.support.data :as data]
             [satmod-lambda.construct.satellite :as sat]
             [seesaw.core :as s]
+            [seesaw.chooser :as choose]
             [seesaw.mig :as sm])
   (:import [java.awt.event ActionListener]
            [java.awt.image BufferedImage]
@@ -57,14 +58,6 @@
                           (map satellite-view loc)))
       (hash-map))))
 
-(defn copy-image
-  "Make a deep copy of a buffered image."
-  [^BufferedImage buffered-image]
-  (let [cm (.getColorModel buffered-image)
-        alpha? (.isAlphaPremultiplied cm)
-        raster (.copyData buffered-image nil)]
-    (BufferedImage. cm raster alpha? nil)))
-
 (defn initialize-image
   "Paint coverage image with a zero-coverage baseline."
   [^BufferedImage image]
@@ -117,7 +110,7 @@
 (defn draw-image
   "Create new satellite coverage image and store in coverage-image atom."
   [& _]
-  (let [^BufferedImage img (copy-image base-image)
+  (let [^BufferedImage img (graph/copy-image base-image)
         g (.getGraphics img)
         overlay-in (BufferedImage. 360 180 BufferedImage/TYPE_4BYTE_ABGR)
         overlay-out (-> overlay-in
@@ -180,11 +173,23 @@
       (reify ActionListener (actionPerformed [& _] (date-fn date-picker))))
     (s/horizontal-panel :items [date-picker time-label time-slider])))
 
+(defn save-image-fn
+  [& _]
+  (let [dim [720 360]
+        save-fn (fn [_ f] (graph/save-image 
+                            (graph/copy-image @coverage-image) 
+                            (.getCanonicalPath f) dim))] 
+    (choose/choose-file :type :save
+                        :all-files? false
+                        :success-fn (partial save-fn)
+                        :filters [["PNG Image" ["png" "PNG"]]])))
+
 (defn option-panel
   "Generate options panel in coverage window"
   []
   (let [image-button (s/button :id :image-button :text "Save Image")
         grid-toggle (s/toggle :id :grid-toggle :text "Show Grid Lines")]
+    (s/listen image-button :action (partial save-image-fn))
     (s/scrollable (sm/mig-panel :items [[image-button "span, grow"] 
                                         [(s/separator) "span, grow"]
                                         [grid-toggle "span, grow"]])

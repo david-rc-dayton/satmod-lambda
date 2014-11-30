@@ -13,7 +13,7 @@
     {:r (int (* r br)) :g (int (* g br)) :b (int (* b br)) :a a}))
 
 (defn imagetoolkit->bufferedimage
-  [image-toolkit]
+  [^sun.awt.image.ToolkitImage image-toolkit]
   (let [buffered-image (java.awt.image.BufferedImage. 
                          (.getWidth image-toolkit) (.getHeight image-toolkit)
                          java.awt.image.BufferedImage/TYPE_INT_ARGB)
@@ -36,8 +36,6 @@
     (let [check-name (.toLowerCase file-name)
           f-n (if-not (.endsWith check-name ".png")
                 (str file-name ".png") file-name)]
-      (println image)
-      (println file-name)
       (javax.imageio.ImageIO/write (imagetoolkit->bufferedimage image)
                                    "png" (java.io.File. f-n))))
   ([image file-name [width height]]

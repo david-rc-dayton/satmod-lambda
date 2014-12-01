@@ -51,7 +51,8 @@
                                             [(edit/edit-panel) :edit-panel]]
                                     :border data/border-size)]
     (s/listen coverage-button 
-              :action (fn [_] (s/show-card! display-panel :cov-panel)))
+              :action (fn [_] (s/show-card! display-panel :cov-panel)
+                        (cov/refresh-panel)))
     (s/listen edit-button 
               :action (fn [_] (s/show-card! display-panel :edit-panel)))
     (reset! root (s/border-panel 

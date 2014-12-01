@@ -201,6 +201,13 @@
   (doto (s/horizontal-panel :id :map-panel)
     (s/listen :component-resized (partial display-image))))
 
+(defn refresh-panel
+  "Reload visual display."
+  []
+  (let [time-slider (s/select @root [:#time-slider])
+        time-label (s/select @root [:#time-label])]
+    (time-fn time-slider time-label)))
+
 (defn coverage-panel
   "Panel for viewing satellite coverage."
   []

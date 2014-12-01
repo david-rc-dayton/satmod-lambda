@@ -13,6 +13,8 @@
     {:r (int (* r br)) :g (int (* g br)) :b (int (* b br)) :a a}))
 
 (defn imagetoolkit->bufferedimage
+  "Convert Sun ToolkitImage to an AWT BufferedImage object. Used for saving
+   pictures to the hard drive."
   [^sun.awt.image.ToolkitImage image-toolkit]
   (let [buffered-image (java.awt.image.BufferedImage. 
                          (.getWidth image-toolkit) (.getHeight image-toolkit)

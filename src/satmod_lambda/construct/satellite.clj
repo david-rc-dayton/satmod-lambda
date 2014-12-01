@@ -90,7 +90,8 @@
     (c/rad->deg (Math/acos (/ re re-plus-h)))))
 
 (defn adist
-  "Call angular distance function indicated in data/settings atom."
+  "Call angular distance function indicated in data/settings atom. Available
+   options are `:cosine` and `:haversine`."
   [& args]
   (let [adist-key (get-in @data/settings [:coverage :adist])]
     (condp = adist-key

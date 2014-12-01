@@ -174,6 +174,8 @@
     (s/horizontal-panel :items [date-picker time-label time-slider])))
 
 (defn save-image-fn
+  "Generate a file-chooser, and save coverage map to the desired location as
+   a PNG image."
   [& _]
   (let [dim [720 360]
         save-fn (fn [_ ^java.io.File f] (graph/save-image 

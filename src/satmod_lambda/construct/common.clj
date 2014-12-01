@@ -25,7 +25,7 @@
 
 (defn geo-radius
   "Calculate Earth's geocentric radius (in meters) for a map containing the key
-   `{:latitude}` in degrees, respectively."
+   `{:latitude}` in degrees."
   [{:keys [latitude]}]
   (let [lat (deg->rad latitude)
         a (:semi-major-axis wgs84)

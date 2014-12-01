@@ -52,7 +52,7 @@
                                     :border data/border-size)]
     (s/listen coverage-button 
               :action (fn [_] (s/show-card! display-panel :cov-panel)
-                        (cov/refresh-panel)))
+                        (cov/refresh-image)))
     (s/listen edit-button 
               :action (fn [_] (s/show-card! display-panel :edit-panel)))
     (reset! root (s/border-panel 

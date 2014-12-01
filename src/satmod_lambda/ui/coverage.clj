@@ -22,6 +22,8 @@
 
 (def coverage-image (atom nil))
 
+(def render-flags (atom {:show-gridlines false}))
+
 (defn alpha [] {:a (get-in @data/settings [:coverage :alpha])})
 
 (defn bright [] (get-in @data/settings [:coverage :bright]))
@@ -107,6 +109,29 @@
     (.getSubimage output bound bound 
       (- (.getWidth image) (* 2 bound)) (- (.getHeight image) (* 2 bound)))))
 
+(defn draw-gridlines
+  "Draw grid lines in 15 degree intervals on coverage-map"
+  [^BufferedImage image]
+  (when (:show-gridlines @render-flags)
+    (let [g (.getGraphics image)
+          width (.getWidth image)
+          height (.getHeight image)
+          w-range (range 0 width (/ width 24))
+          h-range (range 0 height (/ height 12))
+          w-center (/ width 2)
+          h-center (/ height 2)
+          g-alpha (get-in @data/settings [:coverage :grid-alpha])
+          l-color (graph/map->color {:r 192 :g 192 :b 192 :a g-alpha})
+          d-color (graph/map->color {:r 128 :g 128 :b 128 :a g-alpha})]
+      (.setColor g d-color)
+      (dorun (map #(.drawLine g % 0 % height) w-range))
+      (dorun (map #(.drawLine g 0 % width %) h-range))
+      (.setColor g l-color)
+      (.drawLine g w-center 0 w-center height)
+      (.drawLine g 0 h-center width h-center)
+      (.dispose g)))
+  image)
+
 (defn draw-image
   "Create new satellite coverage image and store in coverage-image atom."
   [& _]
@@ -114,7 +139,8 @@
         g (.getGraphics img)
         overlay-in (BufferedImage. 360 180 BufferedImage/TYPE_4BYTE_ABGR)
         overlay-out (-> overlay-in
-                      initialize-image draw-coverage smooth-image)
+                      initialize-image draw-coverage smooth-image
+                      draw-gridlines)
         proc (.getScaledInstance ^BufferedImage overlay-out
                (.getWidth img) (.getHeight img) Image/SCALE_AREA_AVERAGING)]
     (.drawImage g proc 0 0 nil)
@@ -186,12 +212,21 @@
                         :success-fn (partial save-fn)
                         :filters [["PNG Image" ["png" "PNG"]]])))
 
+(defn grid-fn
+  "Update render-flags and redraw image to show global grid lines."
+  [& _]
+  (let [grid-toggle (s/select @root [:#grid-toggle])
+        enabled? (s/selection grid-toggle)]
+    (swap! render-flags assoc :show-gridlines enabled?)
+    (refresh-image)))
+
 (defn option-panel
   "Generate options panel in coverage window"
   []
   (let [image-button (s/button :id :image-button :text "Save Image")
         grid-toggle (s/toggle :id :grid-toggle :text "Show Grid Lines")]
     (s/listen image-button :action (partial save-image-fn))
+    (s/listen grid-toggle :action (partial grid-fn))
     (s/scrollable (sm/mig-panel :items [[image-button "span, grow"] 
                                         [(s/separator) "span, grow"]
                                         [grid-toggle "span, grow"]])
@@ -202,13 +237,6 @@
   []
   (doto (s/horizontal-panel :id :map-panel)
     (s/listen :component-resized (partial display-image))))
-
-(defn refresh-panel
-  "Reload visual display."
-  []
-  (let [time-slider (s/select @root [:#time-slider])
-        time-label (s/select @root [:#time-label])]
-    (time-fn time-slider time-label)))
 
 (defn coverage-panel
   "Panel for viewing satellite coverage."

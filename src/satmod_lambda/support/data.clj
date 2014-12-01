@@ -11,7 +11,7 @@
   {"Satellite"     :satellite
    "Earth Station" :earth-station})
 
-(def settings (atom {:version "0.0.1"
+(def settings (atom {:version "0.0.2"
                      :satellite {}
                      :earth-station {}
                      :coverage {:colors [{:r 255 :g 9 :b 0}                ; red
@@ -23,7 +23,8 @@
                                 :alpha 182
                                 :adist :cosine
                                 :smooth 4
-                                :bright 50}}))
+                                :bright 50
+                                :grid-alpha 64}}))
 
 (def border-size 5)
 

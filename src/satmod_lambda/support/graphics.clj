@@ -32,13 +32,14 @@
 (defn save-image
   "Save PNG image to specified file-name after optionally scaling to
    [width height] dimensions."
-  ([image file-name]
+  ([^sun.awt.image.ToolkitImage image ^String file-name]
     (let [check-name (.toLowerCase file-name)
           f-n (if-not (.endsWith check-name ".png")
                 (str file-name ".png") file-name)]
-      (javax.imageio.ImageIO/write (imagetoolkit->bufferedimage image)
-                                   "png" (java.io.File. f-n))))
-  ([image file-name [width height]]
+      (javax.imageio.ImageIO/write 
+        ^java.awt.image.BufferedImage (imagetoolkit->bufferedimage image)
+        "png" (java.io.File. f-n))))
+  ([^sun.awt.image.ToolkitImage image ^String file-name [width height]]
     (let [scaled-image (.getScaledInstance image width height
                          java.awt.Image/SCALE_AREA_AVERAGING)]
       (save-image scaled-image file-name))))

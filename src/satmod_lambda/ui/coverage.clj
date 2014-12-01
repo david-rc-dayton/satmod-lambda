@@ -176,7 +176,7 @@
 (defn save-image-fn
   [& _]
   (let [dim [720 360]
-        save-fn (fn [_ f] (graph/save-image 
+        save-fn (fn [_ ^java.io.File f] (graph/save-image 
                             (graph/copy-image @coverage-image) 
                             (.getCanonicalPath f) dim))] 
     (choose/choose-file :type :save

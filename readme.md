@@ -1,6 +1,6 @@
 # SatMod-&#x3bb;
 
-Satellite constellation analysis software. The purpose of this program is to model satellite coverage, and possibly other useful constellation management metrics.
+Satellite constellation analysis software. The purpose of this program is to model satellite coverage, and possibly other useful constellation management metrics. Download links can be found on the [releases](https://github.com/david-rc-dayton/satmod-lambda/releases) page.
 
 ![satmod_screenshot](https://raw.githubusercontent.com/david-rc-dayton/satmod-lambda/master/screenshots/satmod_screenshot.png)
 

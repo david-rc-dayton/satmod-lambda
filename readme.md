@@ -1,22 +1,24 @@
 # SatMod-&#x3bb;
 
-Satellite constellation analysis software.
+Satellite constellation analysis software. The purpose of this program is to model satellite coverage, and possibly other useful constellation management metrics.
 
-## Overview
+*This program requires an installed [Java Runtime Environment](http://www.oracle.com/technetwork/java/javase/downloads/index.html), version 7 or higher.*
 
-*Currently a work-in-progress.* The purpose of this software is to efficiently
-model satellite coverage, and possibly other useful constellation management
-metrics. To build from source, import the project into [Nightcode][1] (tested
-using version 0.4.2) and select `Build` to download the code dependencies and
-generate a stand-alone (executable) JAR.
+## Building & Running
 
-To run the stand-alone JAR file, using Java 7 or higher, execute:
+To download the required dependencies and build from source using [Leiningen](http://leiningen.org/), run the following command in the project's root directory:
+
+    lein uberjar
+
+To run the stand-alone JAR file, execute:
 
     java -jar satmod-lambda-XXX-standalone.jar
 
 replacing `XXX` with the version number.
 
 ## License
+
+The MIT License (MIT)
 
 Copyright (c) 2014 David RC Dayton
 
@@ -37,6 +39,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-
-[1]: https://nightcode.info/

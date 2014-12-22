@@ -2,6 +2,8 @@
 
 Satellite constellation analysis software. The purpose of this program is to model satellite coverage, and possibly other useful constellation management metrics.
 
+![satmod_screenshot](https://raw.githubusercontent.com/david-rc-dayton/satmod-lambda/master/screenshots/satmod_screenshot.png)
+
 *This program requires an installed [Java Runtime Environment](http://www.oracle.com/technetwork/java/javase/downloads/index.html), version 7 or higher.*
 
 ## Building & Running

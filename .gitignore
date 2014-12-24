@@ -1,4 +1,3 @@
 target/
-.lein*
-docs/
-.nrepl*
+.*
+!/.gitignore

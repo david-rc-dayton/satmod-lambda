@@ -6,6 +6,10 @@ Satellite constellation analysis software. The purpose of this program is to mod
 
 *This program requires an installed [Java Runtime Environment](http://www.oracle.com/technetwork/java/javase/downloads/index.html), version 7 or higher.*
 
+*For non-Windows operating systems, the Fortran runtime library must be installed. This can be accomplised in Debian/Ubuntu by running:*
+
+    sudo apt-get install libgfortran3
+
 ## Building & Running
 
 To download the required dependencies and build from source using [Leiningen](http://leiningen.org/), run the following command in the project's root directory:

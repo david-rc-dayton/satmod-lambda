@@ -8,7 +8,8 @@ metrics. Download links can be found on the
 ![satmod_screenshot](https://raw.githubusercontent.com/david-rc-dayton/satmod-lambda/master/screenshots/satmod_screenshot.png)
 
 *This program requires an installed
-[Java Runtime Environment](http://www.oracle.com/technetwork/java/javase/downloads/index.html), version 7 or higher.*
+[Java Runtime Environment](http://www.oracle.com/technetwork/java/javase/downloads/index.html),
+version 7 or higher.*
 
 ## Building & Running
 
@@ -23,12 +24,6 @@ To run the stand-alone JAR file, execute:
     java -jar satmod-lambda-XXX-standalone.jar
 
 replacing `XXX` with the version number.
-
-To generate documentation using the
-[Marginalia](https://github.com/gdeer81/marginalia)
-plugin, run the following command in the project's root directory:
-
-    lein marg
 
 ## License
 

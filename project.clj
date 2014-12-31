@@ -6,8 +6,7 @@
                  [commons-lang "2.6"]
                  [predict4java "1.1.158.4"]
                  [seesaw "1.4.4"]]
-  :plugins [[lein-ancient "0.5.5"]
-            [lein-marginalia "0.8.0"]]
+  :plugins [[lein-ancient "0.5.5"]]
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
   :aot :all
   :omit-source true

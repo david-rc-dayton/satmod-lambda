@@ -6,32 +6,32 @@
 
 (defn str->tle
   "Convert a Three Line Element (TLE) set, as a string vector of the form
-   `[line1 line2 line3]` into a `predict4java` `TLE` object. `line1` will be the
-   name of the spacecraft; `line2` and `line3` will be lines 1 & 2 of the
-   orbital elements."
+  `[line1 line2 line3]` into a `predict4java` `TLE` object. `line1` will be the
+  name of the spacecraft; `line2` and `line3` will be lines 1 & 2 of the
+  orbital elements."
   [[line1 line2 line3 :as tle]]
   (TLE. ^"[Ljava.lang.String;" (into-array String tle)))
 
 (defn valid-tle?
   "Determine if Three Line Element Set ois valid based on the checksum value for
-   each line. This function takes a vector of strings for `[line1 line2 line3]`.
-   Output is `true` if the TLE set is valid."
+  each line. This function takes a vector of strings for `[line1 line2 line3]`.
+  Output is `true` if the TLE set is valid."
   [[line1 line2 line3 :as tle]]
   (let [char->int #(Character/getNumericValue ^char %)
         digits (set (map char (range 48 58)))
         replace-dash #(clojure.string/replace % "-" "1")
         valid? #(= (mod (reduce + (butlast %)) 10) (last %))
         tle-clean (->> (map replace-dash (rest tle))
-                    (map #(filter digits (apply vector %)))
-                    (map #(map char->int (apply vector %))))]
+                       (map #(filter digits (apply vector %)))
+                       (map #(map char->int (apply vector %))))]
     (and (not (clojure.string/blank? (.trim ^String line1)))
          (every? true? (map valid? tle-clean)))))
 
 (defn propagate
   "Propagate satellite vectors using a Three Line Element (TLE) set, as a string
-   vector of the form `[line1 line2 line3]` and the date/time as a Java Date
-   Object argument. The function's output will be a location map, containing the
-   keys `{:latitude :longitude :altitude}` in degrees and meters."
+  vector of the form `[line1 line2 line3]` and the date/time as a Java Date
+  Object argument. The function's output will be a location map, containing the
+  keys `{:latitude :longitude :altitude}` in degrees and meters."
   [[line1 line2 line3 :as tle] ^java.util.Date date]
   (let [tle (str->tle tle)
         factory (SatelliteFactory/createSatellite tle)
@@ -48,9 +48,9 @@
 
 (defn adist-haversine
   "Calculate angular distance (in degrees) between two points, using maps
-   containing the keys `{:latitude :longitude}` in degrees as arguments. This
-   function uses the Haversine Formula (the slowest, most accurate method) for
-   angular distance computation."
+  containing the keys `{:latitude :longitude}` in degrees as arguments. This
+  function uses the Haversine Formula (the slowest, most accurate method) for
+  angular distance computation."
   [{:keys [latitude longitude] :as start-point}
    {:keys [latitude longitude] :as end-point}]
   (let [p1 (c/deg->rad (:latitude start-point))
@@ -67,16 +67,16 @@
 (defn adist-cosine
   "Calculate angular distance (in degrees) between two points, using maps
    containing the keys `{:latitude :longitude}` in degrees as arguments. This
-   function uses the Spherical Law of Cosines (faster, but less accurate than 
+   function uses the Spherical Law of Cosines (faster, but less accurate than
    the Haversine Formula) for angular distance computation."
   [{:keys [latitude longitude] :as start-point}
    {:keys [latitude longitude] :as end-point}]
   (let [p1 (c/deg->rad (:latitude start-point))
         p2 (c/deg->rad (:latitude end-point))
-        delta-l (c/deg->rad (- (:longitude end-point) 
+        delta-l (c/deg->rad (- (:longitude end-point)
                                (:longitude start-point)))]
     (c/rad->deg (Math/acos (* (+ (* (Math/sin p1) (Math/sin p2))
-                                 (* (Math/cos p1) (Math/cos p2) 
+                                 (* (Math/cos p1) (Math/cos p2)
                                     (Math/cos delta-l))))))))
 
 (defn adist-horizon

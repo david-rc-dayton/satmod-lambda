@@ -4,4 +4,4 @@
 
 (deftest gen-id-test
   (testing "unique id values"
-           (is (apply distinct? (take 100000 (repeatedly gen-id))))))
+    (is (apply distinct? (take 100000 (repeatedly gen-id))))))

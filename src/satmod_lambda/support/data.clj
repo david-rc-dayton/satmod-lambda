@@ -44,7 +44,7 @@
   "Update settings file to reflect changes in software settings."
   []
   (let [file (io/as-file settings-file)]
-    (add-watch settings :watch-settings 
+    (add-watch settings :watch-settings
                (fn [_ _ _ nv] (spit file (with-out-str (pr nv)))))))
 
 (defn load-settings!

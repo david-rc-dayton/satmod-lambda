@@ -56,19 +56,19 @@
 (defn add-fn
   "Add construct to settings file."
   [& _]
-  (let [^String msg-str (str "Enter name of new " 
+  (let [^String msg-str (str "Enter name of new "
                              (poll-category-text) " construct:")
         name-field (s/text)
         success-fn (fn [& _] (let [new-name (.trim ^String (s/text name-field))]
                                (if-not (.isEmpty ^String new-name)
-                                 (data/add-construct! (poll-category-key) 
+                                 (data/add-construct! (poll-category-key)
                                                       new-name)
                                  (s/alert "Name cannot be blank."))))]
     (doto ^javax.swing.JDialog (s/dialog :option-type :ok-cancel
-                                         :content (s/vertical-panel 
-                                                    :items [msg-str name-field])
+                                         :content (s/vertical-panel
+                                                   :items [msg-str name-field])
                                          :success-fn (partial success-fn))
-      s/pack! (.setLocationRelativeTo @root) s/show!)
+          s/pack! (.setLocationRelativeTo @root) s/show!)
     (category-fn)))
 
 (defn remove-fn
@@ -79,15 +79,15 @@
         success-fn (fn [& _] (data/remove-construct! (poll-category-key)
                                                      (poll-selection-key)))]
     (when-not (nil? (poll-selection-text))
-      (doto ^javax.swing.JDialog (s/dialog :option-type 
+      (doto ^javax.swing.JDialog (s/dialog :option-type
                                            :yes-no :content msg-key
                                            :success-fn (partial success-fn))
-        s/pack! (.setLocationRelativeTo @root) s/show!))
+            s/pack! (.setLocationRelativeTo @root) s/show!))
     (category-fn)))
 
 (defn satellite-update-fn
   "Update data settings based on satellite update-panel values."
-  [name-field id-field tle-id-field 
+  [name-field id-field tle-id-field
    tle-one-field tle-two-field enabled-box & _]
   (let [name (.trim ^String (s/text name-field))
         id (.trim ^String (s/text id-field))
@@ -95,7 +95,7 @@
         tle-one (.trim ^String (s/text tle-one-field))
         tle-two (.trim ^String (s/text tle-two-field))
         enabled (s/selection enabled-box)
-        update-fn (fn [key val] 
+        update-fn (fn [key val]
                     (data/update-construct! :satellite id key val))]
     (when-not (clojure.string/blank? name)
       (update-fn :name name))
@@ -129,22 +129,22 @@
 
 (defn earth-station-update-fn
   "Update data settings based on earth-station update-panel values."
-  [name-field id-field geo-lat-field 
+  [name-field id-field geo-lat-field
    geo-lon-field geo-alt-field enabled-box & _]
   (let [name (.trim ^String (s/text name-field))
         id (.trim ^String (s/text id-field))
         geo-lat (try (Double/parseDouble (s/text geo-lat-field))
-                  (catch NumberFormatException _ nil))
+                     (catch NumberFormatException _ nil))
         geo-lon (try (Double/parseDouble (s/text geo-lon-field))
-                  (catch NumberFormatException _ nil))
+                     (catch NumberFormatException _ nil))
         geo-alt (try (Double/parseDouble (s/text geo-alt-field))
-                  (catch NumberFormatException _ nil))
+                     (catch NumberFormatException _ nil))
         enabled (s/selection enabled-box)
-        update-fn (fn [key val] 
+        update-fn (fn [key val]
                     (data/update-construct! :earth-station id key val))]
     (when-not (clojure.string/blank? name)
       (update-fn :name name))
-    (update-fn :location {:latitude geo-lat :longitude geo-lon 
+    (update-fn :location {:latitude geo-lat :longitude geo-lon
                           :altitude geo-alt})
     (update-fn :enabled? enabled))
   (category-fn))
@@ -179,7 +179,7 @@
         construct-key (poll-selection-key)
         update-panel (s/select @root [:#update-panel])]
     (if-not (nil? (poll-selection-text))
-      (s/config! update-panel 
+      (s/config! update-panel
                  :items [(condp = construct-category
                            :satellite
                            (satellite-update-panel construct-key)
@@ -192,8 +192,8 @@
   []
   (let [category-box (s/combobox :model (keys data/categories)
                                  :id :category-box)
-        selection-box (s/listbox :model (obj/gen-list 
-                                          (first (vals data/categories)))
+        selection-box (s/listbox :model (obj/gen-list
+                                         (first (vals data/categories)))
                                  :id :selection-box)
         add-button (s/button :text "Add" :id :add-button)
         rm-button (s/button :text "Remove" :id :rm-button)]
@@ -201,7 +201,7 @@
     (s/listen add-button :action (partial add-fn))
     (s/listen rm-button :action (partial remove-fn))
     (s/listen selection-box :selection (partial generate-update-panel))
-    (s/border-panel :north category-box 
+    (s/border-panel :north category-box
                     :center (s/scrollable selection-box)
                     :south (s/grid-panel :items [add-button rm-button]
                                          :columns 2))))

@@ -22,7 +22,7 @@
 
 (def window-size [854 :by 480])
 
-(def root 
+(def root
   "Main program panel."
   (atom nil))
 
@@ -39,8 +39,8 @@
 (defn splash-screen
   "Splash-screen window."
   []
-  (doto ^javax.swing.JWindow (s/window :content splash-image) 
-    s/pack! center! s/show! (.setAlwaysOnTop true) .requestFocus))
+  (doto ^javax.swing.JWindow (s/window :content splash-image)
+        s/pack! center! s/show! (.setAlwaysOnTop true) .requestFocus))
 
 (defn main-panel
   "Generate program's main panel."
@@ -50,16 +50,16 @@
         display-panel (s/card-panel :items [[(cov/coverage-panel) :cov-panel]
                                             [(edit/edit-panel) :edit-panel]]
                                     :border data/border-size)]
-    (s/listen coverage-button 
+    (s/listen coverage-button
               :action (fn [_] (s/show-card! display-panel :cov-panel)
                         (cov/refresh-image)))
-    (s/listen edit-button 
+    (s/listen edit-button
               :action (fn [_] (s/show-card! display-panel :edit-panel)))
-    (reset! root (s/border-panel 
-                   :north (s/horizontal-panel :items [coverage-button 
-                                                      edit-button]
-                                              :border data/border-size) 
-                   :center display-panel))))
+    (reset! root (s/border-panel
+                  :north (s/horizontal-panel :items [coverage-button
+                                                     edit-button]
+                                             :border data/border-size)
+                  :center display-panel))))
 
 (defn -main
   "Program entry point."
@@ -68,12 +68,12 @@
     (SubstanceLookAndFeel/setSkin (GraphiteSkin.))
     (data/load-settings!)
     (s/invoke-later
-      (doto (s/frame :title display-name
-                     :content (main-panel)
-                     :icon icon
-                     :on-close :exit
-                     :size window-size
-                     :minimum-size window-size)
-        center! s/show!)
-      (future (do (Thread/sleep 2000)
-                (.dispose ^javax.swing.JWindow splash))))))
+     (doto (s/frame :title display-name
+                    :content (main-panel)
+                    :icon icon
+                    :on-close :exit
+                    :size window-size
+                    :minimum-size window-size)
+       center! s/show!)
+     (future (do (Thread/sleep 2000)
+                 (.dispose ^javax.swing.JWindow splash))))))

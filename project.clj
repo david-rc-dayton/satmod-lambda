@@ -7,7 +7,8 @@
                  [predict4java "1.1.158.4"]
                  [seesaw "1.4.4"]]
   :plugins [[lein-ancient "0.5.5"]]
+  :profiles {:uberjar {:aot :all
+                       :omit-source true}}
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
-  :aot :all
-  :omit-source true
+  :aot [satmod-lambda.core]
   :main satmod-lambda.core)

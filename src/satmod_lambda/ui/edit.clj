@@ -66,9 +66,9 @@
                                  (s/alert "Name cannot be blank."))))]
     (doto ^javax.swing.JDialog (s/dialog :option-type :ok-cancel
                                          :content (s/vertical-panel
-                                                   :items [msg-str name-field])
+                                                    :items [msg-str name-field])
                                          :success-fn (partial success-fn))
-          s/pack! (.setLocationRelativeTo @root) s/show!)
+      s/pack! (.setLocationRelativeTo @root) s/show!)
     (category-fn)))
 
 (defn remove-fn
@@ -82,7 +82,7 @@
       (doto ^javax.swing.JDialog (s/dialog :option-type
                                            :yes-no :content msg-key
                                            :success-fn (partial success-fn))
-            s/pack! (.setLocationRelativeTo @root) s/show!))
+        s/pack! (.setLocationRelativeTo @root) s/show!))
     (category-fn)))
 
 (defn satellite-update-fn
@@ -134,11 +134,11 @@
   (let [name (.trim ^String (s/text name-field))
         id (.trim ^String (s/text id-field))
         geo-lat (try (Double/parseDouble (s/text geo-lat-field))
-                     (catch NumberFormatException _ nil))
+                  (catch NumberFormatException _ nil))
         geo-lon (try (Double/parseDouble (s/text geo-lon-field))
-                     (catch NumberFormatException _ nil))
+                  (catch NumberFormatException _ nil))
         geo-alt (try (Double/parseDouble (s/text geo-alt-field))
-                     (catch NumberFormatException _ nil))
+                  (catch NumberFormatException _ nil))
         enabled (s/selection enabled-box)
         update-fn (fn [key val]
                     (data/update-construct! :earth-station id key val))]
@@ -193,7 +193,7 @@
   (let [category-box (s/combobox :model (keys data/categories)
                                  :id :category-box)
         selection-box (s/listbox :model (obj/gen-list
-                                         (first (vals data/categories)))
+                                          (first (vals data/categories)))
                                  :id :selection-box)
         add-button (s/button :text "Add" :id :add-button)
         rm-button (s/button :text "Remove" :id :rm-button)]

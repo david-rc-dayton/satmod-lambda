@@ -22,8 +22,8 @@
         replace-dash #(clojure.string/replace % "-" "1")
         valid? #(= (mod (reduce + (butlast %)) 10) (last %))
         tle-clean (->> (map replace-dash (rest tle))
-                       (map #(filter digits (apply vector %)))
-                       (map #(map char->int (apply vector %))))]
+                    (map #(filter digits (apply vector %)))
+                    (map #(map char->int (apply vector %))))]
     (and (not (clojure.string/blank? (.trim ^String line1)))
          (every? true? (map valid? tle-clean)))))
 

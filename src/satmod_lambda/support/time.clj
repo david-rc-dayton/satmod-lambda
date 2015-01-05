@@ -13,7 +13,7 @@
   [{:keys [year month day hour minute second]
     :or {year 0 month 0 day 1 hour 0 minute 0 second 0}}]
   (let [calendar (doto (java.util.Calendar/getInstance
-                        (java.util.TimeZone/getTimeZone "UTC"))
+                         (java.util.TimeZone/getTimeZone "UTC"))
                    (.set year (dec month) day hour minute second)
                    (.set java.util.Calendar/MILLISECOND 0))]
     (.getTime calendar)))
@@ -23,7 +23,7 @@
   in UTC time for a given Java Date Object."
   [date]
   (let [calendar (doto (java.util.Calendar/getInstance
-                        (java.util.TimeZone/getTimeZone "UTC"))
+                         (java.util.TimeZone/getTimeZone "UTC"))
                    (.setTime date))
         year (.get calendar java.util.Calendar/YEAR)
         month (inc (.get calendar java.util.Calendar/MONTH))

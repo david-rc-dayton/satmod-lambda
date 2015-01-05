@@ -46,9 +46,9 @@
   "Get list of points-in-view of satellites, as well as an integral coverage
   amount for each point."
   (memoize
-   (fn [{:keys [latitude longitude altitude] :as satellite}]
-     (let [horizon (sat/adist-horizon satellite)]
-       (filter #(<= (sat/adist satellite %) horizon) coordinates)))))
+    (fn [{:keys [latitude longitude altitude] :as satellite}]
+      (let [horizon (sat/adist-horizon satellite)]
+        (filter #(<= (sat/adist satellite %) horizon) coordinates)))))
 
 (defn satellite-coverage
   "Generate frequency chart for total satellite coverage over the Earth's
@@ -68,7 +68,7 @@
         a (alpha)
         color-map (get-in @data/settings [:coverage :colors])
         c (graph/map->color (graph/adjust-brightness
-                             (merge (first color-map) a) (bright)))
+                              (merge (first color-map) a) (bright)))
         g (.getGraphics image)]
     (.setColor g c)
     (.fillRect g 0 0 (.getWidth image) (.getHeight image))
@@ -89,8 +89,8 @@
                                    (val point-cov)
                                    (dec (count color-map)))]
                      (.setRGB image (:x trans) (:y trans)
-                              (.getRGB ^java.awt.Color
-                                       (nth color-map cap-cov)))))]
+                       (.getRGB ^java.awt.Color
+(nth color-map cap-cov)))))]
     (dorun (map paint-fn (satellite-coverage)))
     image))
 
@@ -104,12 +104,12 @@
                                BufferedImage/TYPE_4BYTE_ABGR)
         matrix (float-array (take box-num (repeat (float (/ 1 box-num)))))
         op (java.awt.image.ConvolveOp.
-            (java.awt.image.Kernel. box-root box-root matrix)
-            java.awt.image.ConvolveOp/EDGE_NO_OP nil)]
+             (java.awt.image.Kernel. box-root box-root matrix)
+             java.awt.image.ConvolveOp/EDGE_NO_OP nil)]
     (.filter op image output)
     (.getSubimage output bound bound
-                  (- (.getWidth image) (* 2 bound))
-                  (- (.getHeight image) (* 2 bound)))))
+      (- (.getWidth image) (* 2 bound))
+      (- (.getHeight image) (* 2 bound)))))
 
 (defn draw-gridlines
   "Draw grid lines in 15 degree intervals on coverage-map"
@@ -141,11 +141,11 @@
         g (.getGraphics img)
         overlay-in (BufferedImage. 360 180 BufferedImage/TYPE_4BYTE_ABGR)
         overlay-out (-> overlay-in
-                        initialize-image draw-coverage smooth-image
-                        draw-gridlines)
+                      initialize-image draw-coverage smooth-image
+                      draw-gridlines)
         proc (.getScaledInstance ^BufferedImage overlay-out
-                                 (.getWidth img) (.getHeight img)
-                                 Image/SCALE_AREA_AVERAGING)]
+               (.getWidth img) (.getHeight img)
+               Image/SCALE_AREA_AVERAGING)]
     (.drawImage g proc 0 0 nil)
     (reset! coverage-image img)))
 
@@ -154,9 +154,9 @@
   [& _]
   (let [^javax.swing.JPanel mp (s/select @root [:#map-panel])
         ^BufferedImage scaled-img (.getScaledInstance
-                                   ^BufferedImage @coverage-image
-                                   (.getWidth mp) (.getHeight mp)
-                                   Image/SCALE_FAST)]
+                                    ^BufferedImage @coverage-image
+                                    (.getWidth mp) (.getHeight mp)
+                                    Image/SCALE_FAST)]
     (s/invoke-now (s/config! mp :items [(JLabel. (ImageIcon. scaled-img))]))))
 
 (defn refresh-image
@@ -199,8 +199,8 @@
     (.setDate date-picker (time/now))
     (s/listen time-slider :selection (partial time-fn time-slider time-label))
     (.addActionListener date-picker
-                        (reify ActionListener (actionPerformed [& _]
-                                                (date-fn date-picker))))
+      (reify ActionListener (actionPerformed [& _]
+                              (date-fn date-picker))))
     (s/horizontal-panel :items [date-picker time-label time-slider])))
 
 (defn save-image-fn
@@ -209,8 +209,8 @@
   [& _]
   (let [dim [720 360]
         save-fn (fn [_ ^java.io.File f] (graph/save-image
-                                         (graph/copy-image @coverage-image)
-                                         (.getCanonicalPath f) dim))]
+                                          (graph/copy-image @coverage-image)
+                                          (.getCanonicalPath f) dim))]
     (choose/choose-file :type :save
                         :all-files? false
                         :success-fn (partial save-fn)

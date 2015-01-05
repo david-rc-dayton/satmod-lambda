@@ -17,8 +17,8 @@
   pictures to the hard drive."
   [^sun.awt.image.ToolkitImage image-toolkit]
   (let [buffered-image (java.awt.image.BufferedImage.
-                        (.getWidth image-toolkit) (.getHeight image-toolkit)
-                        java.awt.image.BufferedImage/TYPE_INT_ARGB)
+                         (.getWidth image-toolkit) (.getHeight image-toolkit)
+                         java.awt.image.BufferedImage/TYPE_INT_ARGB)
         bgr (.createGraphics buffered-image)]
     (.drawImage bgr image-toolkit 0 0 nil)
     (.dispose bgr) buffered-image))
@@ -35,13 +35,13 @@
   "Save PNG image to specified file-name after optionally scaling to
   [width height] dimensions."
   ([^sun.awt.image.ToolkitImage image ^String file-name]
-   (let [check-name (.toLowerCase file-name)
-         f-n (if-not (.endsWith check-name ".png")
-               (str file-name ".png") file-name)]
-     (javax.imageio.ImageIO/write
-      ^java.awt.image.BufferedImage (imagetoolkit->bufferedimage image)
-      "png" (java.io.File. f-n))))
+    (let [check-name (.toLowerCase file-name)
+          f-n (if-not (.endsWith check-name ".png")
+                (str file-name ".png") file-name)]
+      (javax.imageio.ImageIO/write
+        ^java.awt.image.BufferedImage (imagetoolkit->bufferedimage image)
+        "png" (java.io.File. f-n))))
   ([^sun.awt.image.ToolkitImage image ^String file-name [width height]]
-   (let [scaled-image (.getScaledInstance image width height
-                                          java.awt.Image/SCALE_AREA_AVERAGING)]
-     (save-image scaled-image file-name))))
+    (let [scaled-image (.getScaledInstance image width height
+                         java.awt.Image/SCALE_AREA_AVERAGING)]
+      (save-image scaled-image file-name))))

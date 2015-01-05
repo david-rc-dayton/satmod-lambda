@@ -39,8 +39,9 @@
 (defn splash-screen
   "Splash-screen window."
   []
-  (doto ^javax.swing.JWindow (s/window :content splash-image)
-    s/pack! center! s/show! (.setAlwaysOnTop true) .requestFocus))
+  (s/invoke-now 
+    (doto ^javax.swing.JWindow (s/window :content splash-image)
+      s/pack! center! s/show! (.setAlwaysOnTop true) .requestFocus)))
 
 (defn main-panel
   "Generate program's main panel."

@@ -18,8 +18,6 @@
 
 (def icon "icon.png")
 
-(def splash-image (io/resource "splash.png"))
-
 (def window-size [854 :by 480])
 
 (def root
@@ -35,13 +33,6 @@
   "Maximize frame."
   [^javax.swing.JFrame frame]
   (.setExtendedState frame 6))
-
-(defn splash-screen
-  "Splash-screen window."
-  []
-  (s/invoke-now 
-    (doto ^javax.swing.JWindow (s/window :content splash-image)
-      s/pack! center! s/show! (.setAlwaysOnTop true) .requestFocus)))
 
 (defn main-panel
   "Generate program's main panel."
@@ -65,16 +56,13 @@
 (defn -main
   "Program entry point."
   [& args]
-  (let [splash (splash-screen)]
-    (SubstanceLookAndFeel/setSkin (GraphiteSkin.))
-    (data/load-settings!)
-    (s/invoke-later
-      (doto (s/frame :title display-name
-                     :content (main-panel)
-                     :icon icon
-                     :on-close :exit
-                     :size window-size
-                     :minimum-size window-size)
-        center! s/show!)
-      (future (do (Thread/sleep 2000)
-                (.dispose ^javax.swing.JWindow splash))))))
+  (SubstanceLookAndFeel/setSkin (GraphiteSkin.))
+  (data/load-settings!)
+  (s/invoke-later
+    (doto (s/frame :title display-name
+                   :content (main-panel)
+                   :icon icon
+                   :on-close :exit
+                   :size window-size
+                   :minimum-size window-size)
+      center! s/show!)))

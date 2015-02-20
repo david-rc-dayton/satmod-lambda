@@ -10,4 +10,5 @@
                        :omit-source true}}
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
   :aot [satmod-lambda.core]
-  :main satmod-lambda.core)
+  :main satmod-lambda.core
+  :manifest {"SplashScreen-Image" "splash.png"})

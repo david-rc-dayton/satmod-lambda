@@ -65,4 +65,4 @@
                    :on-close :exit
                    :size window-size
                    :minimum-size window-size)
-      center! s/show!)))
+      center! maximize! s/show!)))

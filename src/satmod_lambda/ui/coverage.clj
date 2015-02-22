@@ -85,12 +85,12 @@
                             (get-in @data/settings [:coverage :colors])))
         paint-fn (fn [point-cov]
                    (let [trans (convert-point (key point-cov))
-                         cap-cov (if (< (val point-cov) (dec (count color-map)))
+                         max-cov (dec (count color-map))
+                         cap-cov (if (< (val point-cov) max-cov)
                                    (val point-cov)
-                                   (dec (count color-map)))]
+                                   max-cov)]
                      (.setRGB image (:x trans) (:y trans)
-                       (.getRGB ^java.awt.Color
-(nth color-map cap-cov)))))]
+                       (.getRGB ^java.awt.Color (nth color-map cap-cov)))))]
     (dorun (map paint-fn (satellite-coverage)))
     image))
 

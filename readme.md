@@ -26,8 +26,7 @@ To run the stand-alone JAR file, execute:
 replacing `XXX` with the version number.
 
 ## Credits
-Map images:
-[Location Map](http://commons.wikimedia.org/wiki/File:World_location_map_%28equirectangular_180%29.svg)
+- [Coverage Map](http://commons.wikimedia.org/wiki/File:World_location_map_%28equirectangular_180%29.svg)
 
 ## License
 

@@ -1,4 +1,4 @@
-(defproject satmod-lambda "0.0.2"
+(defproject satmod-lambda "0.0.3-SNAPSHOT"
   :description "Satellite constellation analysis software."
   :repositories {"local" "file:lib"}
   :dependencies [[org.clojure/clojure "1.6.0"]

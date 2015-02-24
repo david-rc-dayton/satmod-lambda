@@ -195,7 +195,8 @@
                               :paint-track? true)
         time-label (s/label :id :time-label :text "  00:00z  ")
         date-picker (doto (org.jdesktop.swingx.JXDatePicker.)
-                      (.setTimeZone (java.util.TimeZone/getTimeZone "UTC")))]
+                      (.setTimeZone (java.util.TimeZone/getTimeZone "UTC"))
+                      (.setFormats (into-array String ["yy-DDD"])))]
     (.setDate date-picker (time/now))
     (s/listen time-slider :selection (partial time-fn time-slider time-label))
     (.addActionListener date-picker

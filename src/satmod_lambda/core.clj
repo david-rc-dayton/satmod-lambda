@@ -5,8 +5,7 @@
             [seesaw.core :as s]
             [clojure.java.io :as io])
   (:import [org.pushingpixels.substance.api SubstanceLookAndFeel]
-           [org.pushingpixels.substance.api.skin GraphiteSkin]
-           [javax.swing ImageIcon])
+           [org.pushingpixels.substance.api.skin GraphiteSkin])
   (:gen-class))
 
 (def title "SatMod-\u03BB")

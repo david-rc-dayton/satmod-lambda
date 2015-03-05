@@ -32,8 +32,8 @@
   (for [lat (range -90 90) lon (range -180 180)]
     {:latitude lat :longitude lon}))
 
-(defn convert-point [{:keys [latitude longitude]}]
-  {:x (+ 180 longitude) :y (+ (* latitude -1) (dec 90))})
+(defn convert-point [[latitude longitude]]
+  [(+ 180 longitude)  (+ (* latitude -1) (dec 90))])
 
 (defn satellite-locations
   "Get the list of enabled satellites from the data/settings atom."
@@ -47,8 +47,10 @@
   amount for each point."
   (memoize
     (fn [{:keys [latitude longitude altitude] :as satellite}]
-      (let [horizon (sat/adist-horizon satellite)]
-        (filter #(<= (sat/adist satellite %) horizon) coordinates)))))
+      (let [horizon (sat/adist-horizon satellite)
+            vec-fn (fn [x] [(:latitude x) (:longitude x)])]
+        (map vec-fn (filter #(<= (sat/adist satellite %) horizon) 
+                            coordinates))))))
 
 (defn satellite-coverage
   "Generate frequency chart for total satellite coverage over the Earth's
@@ -56,8 +58,7 @@
   []
   (let [loc (satellite-locations @simulation-time)]
     (if-not (zero? (count loc))
-      (frequencies (apply concat
-                          (map satellite-view loc)))
+      (frequencies (apply concat (map satellite-view loc)))
       (hash-map))))
 
 (defn initialize-image
@@ -84,12 +85,12 @@
                        (map #(graph/adjust-brightness (merge % a) (bright))
                             (get-in @data/settings [:coverage :colors])))
         paint-fn (fn [point-cov]
-                   (let [trans (convert-point (key point-cov))
+                   (let [[latitude longitude] (convert-point (key point-cov))
                          max-cov (dec (count color-map))
                          cap-cov (if (< (val point-cov) max-cov)
                                    (val point-cov)
                                    max-cov)]
-                     (.setRGB image (:x trans) (:y trans)
+                     (.setRGB image latitude longitude
                        (.getRGB ^java.awt.Color (nth color-map cap-cov)))))]
     (dorun (map paint-fn (satellite-coverage)))
     image))
@@ -140,8 +141,7 @@
   (let [^BufferedImage img (graph/copy-image base-image)
         g (.getGraphics img)
         overlay-in (BufferedImage. 360 180 BufferedImage/TYPE_4BYTE_ABGR)
-        overlay-out (-> overlay-in
-                      initialize-image draw-coverage smooth-image
+        overlay-out (-> overlay-in initialize-image draw-coverage smooth-image
                       draw-gridlines)
         proc (.getScaledInstance ^BufferedImage overlay-out
                (.getWidth img) (.getHeight img)

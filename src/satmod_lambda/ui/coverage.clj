@@ -2,7 +2,7 @@
   (:require [satmod-lambda.support.time :as time]
             [satmod-lambda.support.graphics :as graph]
             [satmod-lambda.support.data :as data]
-            [satmod-lambda.construct.satellite :as sat]
+            [clj-predict.core :as predict]
             [seesaw.core :as s]
             [seesaw.chooser :as choose]
             [seesaw.mig :as sm])
@@ -30,7 +30,7 @@
 
 (def coordinates
   (for [lat (range -90 90) lon (range -180 180)]
-    {:latitude lat :longitude lon}))
+    {:latitude lat :longitude lon :altitude 0}))
 
 (defn convert-point [[latitude longitude]]
   [(+ 180 longitude)  (+ (* latitude -1) (dec 90))])
@@ -40,16 +40,15 @@
   [time-map]
   (let [sats (filter :enabled? (vals (:satellite @data/settings)))
         date (time/hash-map->date time-map)]
-    (map #(sat/propagate (:tle %) date) sats)))
+    (map #(predict/propagate (:tle %) date) sats)))
 
 (def satellite-view
   "Get list of points-in-view of satellites, as well as an integral coverage
   amount for each point."
   (memoize
     (fn [{:keys [latitude longitude altitude] :as satellite}]
-      (let [horizon (sat/adist-horizon satellite)
-            vec-fn (fn [x] [(:latitude x) (:longitude x)])]
-        (map vec-fn (filter #(<= (sat/adist satellite %) horizon) 
+      (let [vec-fn (fn [x] [(:latitude x) (:longitude x)])]
+        (map vec-fn (filter #(predict/earth-visible? satellite %) 
                             coordinates))))))
 
 (defn satellite-coverage

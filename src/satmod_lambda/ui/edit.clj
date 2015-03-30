@@ -1,6 +1,6 @@
 (ns satmod-lambda.ui.edit
   (:require [satmod-lambda.support.data :as data]
-            [satmod-lambda.support.object :as obj]
+            [satmod-lambda.support.construct :as ctr]
             [seesaw.core :as s]
             [seesaw.mig :as sm]
             [seesaw.chooser :as choose])
@@ -50,7 +50,7 @@
 (defn category-fn
   "Update construct menu to reflect selected category."
   [& _]
-  (let [model (obj/gen-list (poll-category-key))]
+  (let [model (ctr/gen-list (poll-category-key))]
     (s/config! (poll-selection-box) :model model)))
 
 (defn add-fn
@@ -192,7 +192,7 @@
   []
   (let [category-box (s/combobox :model (keys data/categories)
                                  :id :category-box)
-        selection-box (s/listbox :model (obj/gen-list
+        selection-box (s/listbox :model (ctr/gen-list
                                           (first (vals data/categories)))
                                  :id :selection-box)
         add-button (s/button :text "Add" :id :add-button)

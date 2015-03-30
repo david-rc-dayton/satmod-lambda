@@ -1,4 +1,4 @@
-(ns satmod-lambda.support.object
+(ns satmod-lambda.support.construct
   (:require [satmod-lambda.support.data :as data]))
 
 (defrecord SMLObject [type name id]
